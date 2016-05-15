@@ -1,5 +1,6 @@
 use std::fmt::Debug;
 use std::marker::PhantomData;
+use std::hash::Hash;
 
 use Expr;
 
@@ -9,7 +10,7 @@ pub struct SimplifyContext<T> {
 }
 
 impl<T> SimplifyContext<T>
-    where T: Clone + Debug + Eq
+    where T: Clone + Debug + Eq + Ord + Hash
 {
     pub fn new() -> SimplifyContext<T> {
         SimplifyContext {
@@ -105,24 +106,16 @@ impl<T> SimplifyContext<T>
         }
         e
     }
-
-    pub fn sum_of_products(&mut self, e: Expr<T>) -> Expr<T> {
-        // First simplify the expression. The nodes should be in order (from
-        // tree root to leaves) OR > AND > NOT.
-        let e = self.simplify(e);
-
-        // Now collect all factors joined by top-level ORs.
-        e
-    }
 }
 
 mod test {
     use Expr;
     use super::*;
     use std::fmt::Debug;
+    use std::hash::Hash;
 
     fn run_test<T>(orig: Expr<T>, expected: Expr<T>)
-        where T: Clone + Debug + Eq
+        where T: Clone + Debug + Eq + Ord + Hash
     {
         let mut ctx = SimplifyContext::new();
         let output = ctx.simplify(orig.clone());

@@ -2,3 +2,6 @@
 name = "boolean_expression"
 version = "0.1.0"
 authors = ["Chris Fallin <cfallin@c1f.net>"]
+
+[dependencies]
+rand = "*"
