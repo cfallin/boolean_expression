@@ -1,6 +1,8 @@
 boolean\_expression: a small Rust crate for Boolean expressions and BDDs
 ========================================================================
 
+[![Build Status](https://travis-ci.org/cfallin/boolean_expression.svg?branch=master)](https://travis-ci.org/cfallin/boolean_expression)
+
 This crate provides for the manipulation and evaluation of Boolean expressions
 and Binary Decision Diagrams (BDDs), and the construction of BDDs from Boolean
 expressions. It also has a very simple Boolean expression simplifier, though
