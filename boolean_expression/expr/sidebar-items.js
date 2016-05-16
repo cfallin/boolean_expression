@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Expr","An `Expr` is a simple Boolean logic expression. It may contain terminals (i.e., free variables), constants, and the following fundamental operations: AND, OR, NOT."]]});
