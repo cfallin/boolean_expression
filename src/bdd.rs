@@ -11,24 +11,24 @@ pub type BDDFunc = usize;
 pub const BDD_ZERO: BDDFunc = usize::MAX;
 pub const BDD_ONE: BDDFunc = usize::MAX - 1;
 
-pub type BDDLabel = usize;
+type BDDLabel = usize;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct BDDNode {
+struct BDDNode {
     label: BDDLabel,
     lo: BDDFunc,
     hi: BDDFunc,
 }
 
 #[derive(Clone, Debug)]
-pub struct BDD {
+struct LabelBDD {
     nodes: Vec<BDDNode>,
     dedup_hash: HashMap<BDDNode, BDDFunc>,
 }
 
-impl BDD {
-    pub fn new() -> BDD {
-        BDD {
+impl LabelBDD {
+    pub fn new() -> LabelBDD {
+        LabelBDD {
             nodes: Vec::new(),
             dedup_hash: HashMap::new(),
         }
@@ -159,73 +159,82 @@ impl BDD {
     }
 }
 
-pub struct BDDExprBuilder<T>
-    where T: Clone + Debug + Eq + Ord + Hash
-{
-    bdd: BDD,
-    label_map: HashMap<T, BDDLabel>,
+#[derive(Clone, Debug)]
+pub struct BDD<T> where T: Clone + Debug + Eq + Ord + Hash {
+    bdd: LabelBDD,
+    labels: HashMap<T, BDDLabel>,
     next_label: BDDLabel,
 }
 
-impl<T> BDDExprBuilder<T>
-    where T: Clone + Debug + Eq + Ord + Hash
-{
-    pub fn new() -> BDDExprBuilder<T> {
-        BDDExprBuilder {
-            bdd: BDD::new(),
-            label_map: HashMap::new(),
-            next_label: 0,
-        }
+impl<T> BDD<T> where T: Clone + Debug + Eq + Ord + Hash {
+    pub fn new() -> BDD<T> {
+        BDD { bdd: LabelBDD::new(), labels: HashMap::new(), next_label: 0 }
     }
 
-    fn label_mut(&mut self, t: &T) -> BDDLabel {
-        match self.label_map.entry(t.clone()) {
+    fn label(&mut self, t: T) -> BDDLabel {
+        match self.labels.entry(t.clone()) {
             HashEntry::Occupied(o) => *o.get(),
             HashEntry::Vacant(v) => {
-                let new_id = self.next_label;
+                let next_id = self.next_label;
                 self.next_label += 1;
-                v.insert(new_id);
-                new_id
+                v.insert(next_id);
+                next_id
             }
         }
     }
 
-    pub fn label(&self, t: &T) -> Option<BDDLabel> {
-        self.label_map.get(t).map(|l| *l)
+    pub fn terminal(&mut self, t: T) -> BDDFunc {
+        let l = self.label(t);
+        self.bdd.terminal(l)
     }
 
-    pub fn build(&mut self, e: &Expr<T>) -> BDDFunc {
+    pub fn constant(&mut self, val: bool) -> BDDFunc {
+        self.bdd.constant(val)
+    }
+
+    pub fn not(&mut self, n: BDDFunc) -> BDDFunc {
+        self.bdd.not(n)
+    }
+
+    pub fn and(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
+        self.bdd.and(a, b)
+    }
+
+    pub fn or(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
+        self.bdd.or(a, b)
+    }
+
+    pub fn expr(&mut self, e: &Expr<T>) -> BDDFunc {
         match e {
             &Expr::Terminal(ref t) => {
-                let l = self.label_mut(t);
-                self.bdd.terminal(l)
+                self.terminal(t.clone())
             }
-            &Expr::Const(val) => self.bdd.constant(val),
+            &Expr::Const(val) => self.constant(val),
             &Expr::Not(ref x) => {
-                let xval = self.build(&**x);
-                self.bdd.not(xval)
+                let xval = self.expr(&**x);
+                self.not(xval)
             }
             &Expr::And(ref a, ref b) => {
-                let aval = self.build(&**a);
-                let bval = self.build(&**b);
-                self.bdd.and(aval, bval)
+                let aval = self.expr(&**a);
+                let bval = self.expr(&**b);
+                self.and(aval, bval)
             }
             &Expr::Or(ref a, ref b) => {
-                let aval = self.build(&**a);
-                let bval = self.build(&**b);
-                self.bdd.or(aval, bval)
+                let aval = self.expr(&**a);
+                let bval = self.expr(&**b);
+                self.or(aval, bval)
             }
         }
     }
 
-    pub fn bdd(&self) -> &BDD {
-        &self.bdd
-    }
-    pub fn bdd_mut(&mut self) -> &mut BDD {
-        &mut self.bdd
-    }
-    pub fn take(self) -> BDD {
-        self.bdd
+    pub fn evaluate(&self, f: BDDFunc, values: &HashMap<T, bool>) -> bool {
+        let size = self.next_label;
+        let mut valarray = Vec::with_capacity(size);
+        valarray.resize(size, false);
+        for (t, l) in &self.labels {
+            valarray[*l as usize] = *values.get(t).unwrap_or(&false);
+        }
+        self.bdd.evaluate(f, &valarray).unwrap()
     }
 }
 
@@ -236,18 +245,30 @@ mod test {
     extern crate rand;
     use self::rand::Rng;
 
+    fn term_hashmap(vals: &[bool], h: &mut HashMap<u32, bool>) {
+        h.clear();
+        for (i, v) in vals.iter().enumerate() {
+            h.insert(i as u32, *v);
+        }
+    }
+
+    fn test_bdd(b: &BDD<u32>, f: BDDFunc, h: &mut HashMap<u32, bool>, inputs: &[bool], expected: bool) {
+        term_hashmap(inputs, h);
+        assert!(b.evaluate(f, h) == expected);
+    }
+
     #[test]
     fn bdd_eval() {
-        let mut b = BDDExprBuilder::new();
-        let expr = Expr::or(Expr::and(Expr::Terminal(1), Expr::Terminal(2)),
-                            Expr::and(Expr::not(Expr::Terminal(3)), Expr::not(Expr::Terminal(4))));
-        let f = b.build(&expr);
-        let bdd = b.take();
-        assert!(bdd.evaluate(f, &[false, false, true, true]) == Some(false));
-        assert!(bdd.evaluate(f, &[true, false, true, true]) == Some(false));
-        assert!(bdd.evaluate(f, &[true, true, true, true]) == Some(true));
-        assert!(bdd.evaluate(f, &[false, false, false, true]) == Some(false));
-        assert!(bdd.evaluate(f, &[false, false, false, false]) == Some(true));
+        let mut h = HashMap::new();
+        let mut b = BDD::new();
+        let expr = Expr::or(Expr::and(Expr::Terminal(0), Expr::Terminal(1)),
+                            Expr::and(Expr::not(Expr::Terminal(2)), Expr::not(Expr::Terminal(3))));
+        let f = b.expr(&expr);
+        test_bdd(&b, f, &mut h, &[false, false, true, true], false);
+        test_bdd(&b, f, &mut h, &[true, false, true, true], false);
+        test_bdd(&b, f, &mut h, &[true, true, true, true], true);
+        test_bdd(&b, f, &mut h, &[false, false, false, true], false);
+        test_bdd(&b, f, &mut h, &[false, false, false, false], true);
     }
 
     fn bits_to_hashmap(bits: usize, n: usize, h: &mut HashMap<u32, bool>) {
@@ -257,29 +278,13 @@ mod test {
     }
 
     fn test_bdd_expr(e: Expr<u32>, nterminals: usize) {
-        let mut b = BDDExprBuilder::<u32>::new();
-        let f = b.build(&e.clone());
-        // This is a little roundabout:
-        // - the expression evaluation expects a hashmap from arbitrary terminal type T to terminal values.
-        // - the BDD evaluation expects a vector of label values indexed by BDD variable labels.
-        // - we can map from the former to the latter by going through the BDD builder.
-        //
-        // TODO: clean this up: include a terminal-to-label map in the BDD itself.
+        let mut b = BDD::new();
+        let f = b.expr(&e);
         let mut terminal_values = HashMap::new();
-        let mut label_values = vec![false; nterminals];
-        let terminal_to_label: Vec<Option<BDDLabel>> = (0..(nterminals as u32))
-                                                           .map(|i| b.label(&i))
-                                                           .collect();
-        let bdd = b.take();
         for v in 0..(1 << nterminals) {
             bits_to_hashmap(nterminals, v, &mut terminal_values);
-            for i in 0..(nterminals as u32) {
-                if let Some(l) = terminal_to_label[i as usize] {
-                    label_values[l] = *terminal_values.get(&i).unwrap();
-                }
-            }
             let expr_val = e.evaluate(&terminal_values);
-            let bdd_val = bdd.evaluate(f, &label_values).unwrap();
+            let bdd_val = b.evaluate(f, &terminal_values);
             assert!(expr_val == bdd_val);
         }
     }

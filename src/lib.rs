@@ -9,3 +9,4 @@ mod simplify;
 
 pub use expr::*;
 pub use simplify::*;
+pub use bdd::*;
