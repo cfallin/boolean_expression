@@ -1,10 +1,16 @@
+// boolean_expression: a Rust crate for Boolean expressions and BDDs.
+//
+// Copyright (c) 2016 Chris Fallin <cfallin@c1f.net>. Released under the MIT
+// License.
+//
+
 use std::fmt::Debug;
 use std::marker::PhantomData;
 use std::hash::Hash;
 
 use Expr;
 
-pub struct SimplifyContext<T> {
+struct SimplifyContext<T> {
     changed: bool,
     _t: PhantomData<T>,
 }
@@ -95,17 +101,20 @@ impl<T> SimplifyContext<T>
         }
         newval
     }
+}
 
-    pub fn simplify(&mut self, e: Expr<T>) -> Expr<T> {
-        let mut e = e;
-        self.changed = true;
-        while self.changed {
-            self.changed = false;
-            let e_new = self.step(e);
-            e = e_new;
-        }
-        e
+pub fn simplify<T>(e: Expr<T>) -> Expr<T>
+    where T: Clone + Debug + Eq + Ord + Hash
+{
+    let mut ctx = SimplifyContext::new();
+    let mut e = e;
+    ctx.changed = true;
+    while ctx.changed {
+        ctx.changed = false;
+        let e_new = ctx.step(e);
+        e = e_new;
     }
+    e
 }
 
 mod test {
@@ -117,8 +126,7 @@ mod test {
     fn run_test<T>(orig: Expr<T>, expected: Expr<T>)
         where T: Clone + Debug + Eq + Ord + Hash
     {
-        let mut ctx = SimplifyContext::new();
-        let output = ctx.simplify(orig.clone());
+        let output = simplify(orig.clone());
         println!("Simplify: {:?} -> {:?} (expected {:?})",
                  orig,
                  output,

@@ -1,3 +1,9 @@
+// boolean_expression: a Rust crate for Boolean expressions and BDDs.
+//
+// Copyright (c) 2016 Chris Fallin <cfallin@c1f.net>. Released under the MIT
+// License.
+//
+
 use std::collections::HashMap;
 use std::collections::hash_map::Entry as HashEntry;
 use std::cmp;
@@ -7,8 +13,13 @@ use std::usize;
 
 use Expr;
 
+/// A `BDDFunc` is a function index within a particular `BDD` index. It must
+/// only be used with the `BDD` instance which produced it.
 pub type BDDFunc = usize;
+
+/// A special terminal `BDDFunc` which is constant `false` (zero).
 pub const BDD_ZERO: BDDFunc = usize::MAX;
+/// A special terminal `BDDFunc` which is constant `true` (one).
 pub const BDD_ONE: BDDFunc = usize::MAX - 1;
 
 type BDDLabel = usize;
@@ -63,6 +74,9 @@ impl LabelBDD {
         }
     }
 
+    /// Restrict: fundamental building block of logical combinators. Takes a
+    /// Shannon cofactor: i.e., returns a new function based on `f` but with the
+    /// given label forced to the given value.
     pub fn restrict(&mut self, f: BDDFunc, label: BDDLabel, val: bool) -> BDDFunc {
         if f == BDD_ZERO {
             return BDD_ZERO;
@@ -95,6 +109,9 @@ impl LabelBDD {
         }
     }
 
+    /// If-then-else: fundamental building block of logical combinators. Works
+    /// by divide-and-conquer: split on the lowest appearing label, take Shannon
+    /// cofactors for the two cases, recurse, and recombine with a new node.
     pub fn ite(&mut self, i: BDDFunc, t: BDDFunc, e: BDDFunc) -> BDDFunc {
         if i == BDD_ONE {
             t
@@ -159,16 +176,43 @@ impl LabelBDD {
     }
 }
 
+/// A `BDD` is a Binary Decision Diagram, an efficient way to represent a
+/// Boolean function in a canonical way. (It is actually a "Reduced Ordered
+/// Binary Decision Diagram", which gives it its canonicity assuming terminals
+/// are ordered consistently.)
+///
+/// A BDD is built up from terminals (free variables) and constants, combined
+/// with the logical combinators AND, OR, and NOT. It may be evaluated with
+/// certain terminal assignments.
+///
+/// The major advantage of a BDD is that its logical operations are performed,
+/// it will "self-simplify": i.e., taking the OR of `And(a, b)` and `And(a,
+/// Not(b))` will produce `a` without any further simplification step. Furthermore,
+/// the `BDDFunc` representing this value is canonical: if two different
+/// expressions are produced within the same BDD and they both result in
+/// (simplify down to) `a`, then the `BDDFunc` values will be equal. The
+/// tradeoff is that logical operations may be expensive: they are linear in
+/// BDD size, but BDDs may have exponential size (relative to terminal count)
+/// in the worst case.
 #[derive(Clone, Debug)]
-pub struct BDD<T> where T: Clone + Debug + Eq + Ord + Hash {
+pub struct BDD<T>
+    where T: Clone + Debug + Eq + Ord + Hash
+{
     bdd: LabelBDD,
     labels: HashMap<T, BDDLabel>,
     next_label: BDDLabel,
 }
 
-impl<T> BDD<T> where T: Clone + Debug + Eq + Ord + Hash {
+impl<T> BDD<T>
+    where T: Clone + Debug + Eq + Ord + Hash
+{
+    /// Produce a new, empty, BDD.
     pub fn new() -> BDD<T> {
-        BDD { bdd: LabelBDD::new(), labels: HashMap::new(), next_label: 0 }
+        BDD {
+            bdd: LabelBDD::new(),
+            labels: HashMap::new(),
+            next_label: 0,
+        }
     }
 
     fn label(&mut self, t: T) -> BDDLabel {
@@ -183,32 +227,42 @@ impl<T> BDD<T> where T: Clone + Debug + Eq + Ord + Hash {
         }
     }
 
+    /// Produce a function within the BDD representing the terminal `t`. If
+    /// this terminal has been used in the BDD before, the same `BDDFunc` will be
+    /// returned.
     pub fn terminal(&mut self, t: T) -> BDDFunc {
         let l = self.label(t);
         self.bdd.terminal(l)
     }
 
+    /// Produce a function within the BDD representing the constant value `val`.
     pub fn constant(&mut self, val: bool) -> BDDFunc {
         self.bdd.constant(val)
     }
 
+    /// Produce a function within the BDD representing the logical complement
+    /// of the function `n`.
     pub fn not(&mut self, n: BDDFunc) -> BDDFunc {
         self.bdd.not(n)
     }
 
+    /// Produce a function within the BDD representing the logical AND of the
+    /// functions `a` and `b`.
     pub fn and(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
         self.bdd.and(a, b)
     }
 
+    /// Produce a function within the BDD representing the logical OR of the
+    /// functions `a` and `b`.
     pub fn or(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
         self.bdd.or(a, b)
     }
 
+    /// Produce a function within the BDD representing the given expression
+    /// `e`, which may contain ANDs, ORs, NOTs, terminals, and constants.
     pub fn expr(&mut self, e: &Expr<T>) -> BDDFunc {
         match e {
-            &Expr::Terminal(ref t) => {
-                self.terminal(t.clone())
-            }
+            &Expr::Terminal(ref t) => self.terminal(t.clone()),
             &Expr::Const(val) => self.constant(val),
             &Expr::Not(ref x) => {
                 let xval = self.expr(&**x);
@@ -227,6 +281,8 @@ impl<T> BDD<T> where T: Clone + Debug + Eq + Ord + Hash {
         }
     }
 
+    /// Evaluate the function `f` in the BDD with the given terminal
+    /// assignments. Any terminals not specified in `values` default to `false`.
     pub fn evaluate(&self, f: BDDFunc, values: &HashMap<T, bool>) -> bool {
         let size = self.next_label;
         let mut valarray = Vec::with_capacity(size);
@@ -252,7 +308,11 @@ mod test {
         }
     }
 
-    fn test_bdd(b: &BDD<u32>, f: BDDFunc, h: &mut HashMap<u32, bool>, inputs: &[bool], expected: bool) {
+    fn test_bdd(b: &BDD<u32>,
+                f: BDDFunc,
+                h: &mut HashMap<u32, bool>,
+                inputs: &[bool],
+                expected: bool) {
         term_hashmap(inputs, h);
         assert!(b.evaluate(f, h) == expected);
     }
