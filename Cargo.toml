@@ -8,4 +8,4 @@ documentation = "https://cfallin.github.io/boolean_expression/boolean_expression
 license = "MIT"
 
 [dependencies]
-rand = "*"
+rand = "0.3"
