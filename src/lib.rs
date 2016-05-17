@@ -16,9 +16,14 @@
 //! should not be considered complete. This crate may eventually be expanded with
 //! more elaborate simplifiers.
 
+extern crate smallvec;
+extern crate itertools;
+
 mod expr;
 mod bdd;
+mod cubes;
 mod simplify;
 
 pub use expr::*;
 pub use bdd::*;
+pub use cubes::*;

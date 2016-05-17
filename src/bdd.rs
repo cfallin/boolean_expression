@@ -10,8 +10,10 @@ use std::cmp;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::usize;
+use itertools::Itertools;
 
 use Expr;
+use cubes::{CubeList, Cube, CubeVar};
 
 /// A `BDDFunc` is a function index within a particular `BDD` index. It must
 /// only be used with the `BDD` instance which produced it.
@@ -177,6 +179,74 @@ impl LabelBDD {
             _ => None,
         }
     }
+
+    fn compute_cubelist(&self, memoize_vec: &mut Vec<Option<CubeList>>, n: BDDFunc, nvars: usize) {
+        if memoize_vec[n].is_some() {
+            return;
+        }
+        let label = self.nodes[n].label;
+        let lo = self.nodes[n].lo;
+        let hi = self.nodes[n].hi;
+        let lo_list = match lo {
+            BDD_ZERO => CubeList::new(),
+            BDD_ONE => {
+                CubeList::from_list(&[Cube::true_cube(nvars)])
+                    .with_var(label as usize, CubeVar::False)
+            }
+            _ => {
+                self.compute_cubelist(memoize_vec, lo, nvars);
+                memoize_vec[lo].as_ref().unwrap().with_var(label as usize, CubeVar::False)
+            }
+        };
+        let hi_list = match hi {
+            BDD_ZERO => CubeList::new(),
+            BDD_ONE => {
+                CubeList::from_list(&[Cube::true_cube(nvars)])
+                    .with_var(label as usize, CubeVar::True)
+            }
+            _ => {
+                self.compute_cubelist(memoize_vec, hi, nvars);
+                memoize_vec[hi].as_ref().unwrap().with_var(label as usize, CubeVar::True)
+            }
+        };
+        let new_list = lo_list.merge(&hi_list);
+        memoize_vec[n] = Some(new_list);
+    }
+
+    fn cube_to_expr(&self, c: &Cube) -> Expr<BDDLabel> {
+        c.vars()
+         .enumerate()
+         .flat_map(|(i, v)| {
+             match v {
+                 &CubeVar::False => Some(Expr::not(Expr::Terminal(i))),
+                 &CubeVar::True => Some(Expr::Terminal(i)),
+                 &CubeVar::DontCare => None,
+             }
+         })
+         .fold1(|a, b| Expr::and(a, b))
+         .unwrap_or(Expr::Const(true))
+    }
+
+    fn cubelist_to_expr(&self, c: &CubeList) -> Expr<BDDLabel> {
+        c.cubes()
+         .map(|c| self.cube_to_expr(c))
+         .fold1(|a, b| Expr::or(a, b))
+         .unwrap_or(Expr::Const(false))
+    }
+
+    pub fn to_expr(&self, func: BDDFunc, nvars: usize) -> Expr<BDDLabel> {
+        if func == BDD_ZERO {
+            Expr::Const(false)
+        } else if func == BDD_ONE {
+            Expr::Const(true)
+        } else {
+            // At each node, we construct a cubelist, starting from the roots.
+            let mut cubelists: Vec<Option<CubeList>> = Vec::with_capacity(self.nodes.len());
+            cubelists.resize(self.nodes.len(), None);
+            self.compute_cubelist(&mut cubelists, func, nvars);
+            self.cubelist_to_expr(cubelists[func].as_ref().unwrap())
+        }
+    }
 }
 
 /// A `BDD` is a Binary Decision Diagram, an efficient way to represent a
@@ -203,6 +273,7 @@ pub struct BDD<T>
 {
     bdd: LabelBDD,
     labels: HashMap<T, BDDLabel>,
+    rev_labels: Vec<T>,
     next_label: BDDLabel,
 }
 
@@ -214,6 +285,7 @@ impl<T> BDD<T>
         BDD {
             bdd: LabelBDD::new(),
             labels: HashMap::new(),
+            rev_labels: Vec::new(),
             next_label: 0,
         }
     }
@@ -225,6 +297,7 @@ impl<T> BDD<T>
                 let next_id = self.next_label;
                 self.next_label += 1;
                 v.insert(next_id);
+                self.rev_labels.push(t);
                 next_id
             }
         }
@@ -263,22 +336,22 @@ impl<T> BDD<T>
 
     /// Produce a function within the BDD representing the given expression
     /// `e`, which may contain ANDs, ORs, NOTs, terminals, and constants.
-    pub fn expr(&mut self, e: &Expr<T>) -> BDDFunc {
+    pub fn from_expr(&mut self, e: &Expr<T>) -> BDDFunc {
         match e {
             &Expr::Terminal(ref t) => self.terminal(t.clone()),
             &Expr::Const(val) => self.constant(val),
             &Expr::Not(ref x) => {
-                let xval = self.expr(&**x);
+                let xval = self.from_expr(&**x);
                 self.not(xval)
             }
             &Expr::And(ref a, ref b) => {
-                let aval = self.expr(&**a);
-                let bval = self.expr(&**b);
+                let aval = self.from_expr(&**a);
+                let bval = self.from_expr(&**b);
                 self.and(aval, bval)
             }
             &Expr::Or(ref a, ref b) => {
-                let aval = self.expr(&**a);
-                let bval = self.expr(&**b);
+                let aval = self.from_expr(&**a);
+                let bval = self.from_expr(&**b);
                 self.or(aval, bval)
             }
         }
@@ -294,6 +367,13 @@ impl<T> BDD<T>
             valarray[*l as usize] = *values.get(t).unwrap_or(&false);
         }
         self.bdd.evaluate(f, &valarray).unwrap()
+    }
+
+    /// Convert the BDD to a minimized sum-of-products expression.
+    pub fn to_expr(&self, f: BDDFunc) -> Expr<T> {
+        self.bdd
+            .to_expr(f, self.next_label)
+            .map(|t: &BDDLabel| self.rev_labels[*t as usize].clone())
     }
 }
 
@@ -326,7 +406,7 @@ mod test {
         let mut b = BDD::new();
         let expr = Expr::or(Expr::and(Expr::Terminal(0), Expr::Terminal(1)),
                             Expr::and(Expr::not(Expr::Terminal(2)), Expr::not(Expr::Terminal(3))));
-        let f = b.expr(&expr);
+        let f = b.from_expr(&expr);
         test_bdd(&b, f, &mut h, &[false, false, true, true], false);
         test_bdd(&b, f, &mut h, &[true, false, true, true], false);
         test_bdd(&b, f, &mut h, &[true, true, true, true], true);
@@ -342,7 +422,7 @@ mod test {
 
     fn test_bdd_expr(e: Expr<u32>, nterminals: usize) {
         let mut b = BDD::new();
-        let f = b.expr(&e);
+        let f = b.from_expr(&e);
         let mut terminal_values = HashMap::new();
         for v in 0..(1 << nterminals) {
             bits_to_hashmap(nterminals, v, &mut terminal_values);
@@ -376,5 +456,28 @@ mod test {
             let expr = random_expr(&mut rng, 6);
             test_bdd_expr(expr, 6);
         }
+    }
+
+    #[test]
+    fn bdd_to_expr() {
+        let mut b = BDD::new();
+        let f_true = b.constant(true);
+        assert!(b.to_expr(f_true) == Expr::Const(true));
+        let f_false = b.constant(false);
+        assert!(b.to_expr(f_false) == Expr::Const(false));
+        let f_0 = b.terminal(0);
+        let f_1 = b.terminal(1);
+        let f_and = b.and(f_0, f_1);
+        assert!(b.to_expr(f_and) == Expr::and(Expr::Terminal(0), Expr::Terminal(1)));
+        let f_or = b.or(f_0, f_1);
+        assert!(b.to_expr(f_or) == Expr::or(Expr::Terminal(1), Expr::Terminal(0)));
+        let f_not = b.not(f_0);
+        assert!(b.to_expr(f_not) == Expr::not(Expr::Terminal(0)));
+        let f_2 = b.terminal(2);
+        let f_1_or_2 = b.or(f_1, f_2);
+        let f_0_and_1_or_2 = b.and(f_0, f_1_or_2);
+        assert!(b.to_expr(f_0_and_1_or_2) ==
+                Expr::or(Expr::and(Expr::Terminal(0), Expr::Terminal(2)),
+                         Expr::and(Expr::Terminal(0), Expr::Terminal(1))));
     }
 }

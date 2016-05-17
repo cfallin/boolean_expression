@@ -127,4 +127,25 @@ impl<T> Expr<T>
     pub fn simplify(self) -> Expr<T> {
         simplify::simplify(self)
     }
+
+    /// Map terminal values using the specified mapping function.
+    pub fn map<F, R>(&self, f: F) -> Expr<R>
+        where F: Fn(&T) -> R,
+              R: Clone + Debug + Eq + Ord + Hash
+    {
+        self.map1(&f)
+    }
+
+    fn map1<F, R>(&self, f: &F) -> Expr<R>
+        where F: Fn(&T) -> R,
+              R: Clone + Debug + Eq + Ord + Hash
+    {
+        match self {
+            &Expr::Terminal(ref t) => Expr::Terminal(f(t)),
+            &Expr::Const(val) => Expr::Const(val),
+            &Expr::Not(ref n) => Expr::not(n.map1(f)),
+            &Expr::And(ref a, ref b) => Expr::and(a.map1(f), b.map1(f)),
+            &Expr::Or(ref a, ref b) => Expr::or(a.map1(f), b.map1(f)),
+        }
+    }
 }
