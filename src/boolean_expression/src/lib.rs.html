@@ -66,6 +66,18 @@
 <span id="22">22</span>
 <span id="23">23</span>
 <span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
 </pre><pre class='rust '>
 <span class='comment'>// boolean_expression: a Rust crate for Boolean expressions and BDDs.</span>
 <span class='comment'>//</span>
@@ -80,17 +92,29 @@
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! This crate provides for the manipulation and evaluation of Boolean expressions</span>
 <span class='doccomment'>//! and Binary Decision Diagrams (BDDs), and the construction of BDDs from Boolean</span>
-<span class='doccomment'>//! expressions. It also has a very simple Boolean expression simplifier, though</span>
-<span class='doccomment'>//! this simplifier does not find minterms (i.e., cancel redundant terms), so</span>
-<span class='doccomment'>//! should not be considered complete. This crate may eventually be expanded with</span>
-<span class='doccomment'>//! more elaborate simplifiers.</span>
+<span class='doccomment'>//! expressions. It can also simplify Boolean expressions via either a set of rules</span>
+<span class='doccomment'>//! such as DeMorgan&#39;s Law (see `Expr::simplify()`), or via a roundtrip through a `BDD`</span>
+<span class='doccomment'>//! and a cubelist-based term reduction (see `BDD::from_expr()` and</span>
+<span class='doccomment'>//! `BDD::to_expr()`). The latter is more powerful, but also more expensive.</span>
+<span class='doccomment'>//!</span>
+<span class='doccomment'>//! The main pieces of interest are:</span>
+<span class='doccomment'>//!</span>
+<span class='doccomment'>//! * `Expr`, an AST enum for expression simple `AND` / `OR` / `NOT`-based expressions.</span>
+<span class='doccomment'>//! * `BDD`, a Binary Decision Diagram implementation.</span>
+<span class='doccomment'>//! * `CubeList`, a low-level datatype with support for cubelist manipulation</span>
+<span class='doccomment'>//!   (used when converting `BDD` functions to expressions).</span>
+
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>smallvec</span>;
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>itertools</span>;
 
 <span class='kw'>mod</span> <span class='ident'>expr</span>;
 <span class='kw'>mod</span> <span class='ident'>bdd</span>;
+<span class='kw'>mod</span> <span class='ident'>cubes</span>;
 <span class='kw'>mod</span> <span class='ident'>simplify</span>;
 
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>expr</span>::<span class='op'>*</span>;
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>bdd</span>::<span class='op'>*</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>cubes</span>::<span class='op'>*</span>;
 </pre>
 </section>
     <section id='search' class="content hidden"></section>

@@ -47,15 +47,24 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-0' class='srclink' href='../src/boolean_expression/src/lib.rs.html#7-24' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-0' class='srclink' href='../src/boolean_expression/src/lib.rs.html#7-36' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id='boolean_expression-expression-manipulation--bdd-library' class='section-header'><a href='#boolean_expression-expression-manipulation--bdd-library'>boolean_expression expression manipulation / BDD library</a></h1>
 <p>This crate provides for the manipulation and evaluation of Boolean expressions
 and Binary Decision Diagrams (BDDs), and the construction of BDDs from Boolean
-expressions. It also has a very simple Boolean expression simplifier, though
-this simplifier does not find minterms (i.e., cancel redundant terms), so
-should not be considered complete. This crate may eventually be expanded with
-more elaborate simplifiers.</p>
+expressions. It can also simplify Boolean expressions via either a set of rules
+such as DeMorgan&#39;s Law (see <code>Expr::simplify()</code>), or via a roundtrip through a <code>BDD</code>
+and a cubelist-based term reduction (see <code>BDD::from_expr()</code> and
+<code>BDD::to_expr()</code>). The latter is more powerful, but also more expensive.</p>
+
+<p>The main pieces of interest are:</p>
+
+<ul>
+<li><code>Expr</code>, an AST enum for expression simple <code>AND</code> / <code>OR</code> / <code>NOT</code>-based expressions.</li>
+<li><code>BDD</code>, a Binary Decision Diagram implementation.</li>
+<li><code>CubeList</code>, a low-level datatype with support for cubelist manipulation
+(used when converting <code>BDD</code> functions to expressions).</li>
+</ul>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                        <tr class=' module-item'>
@@ -67,8 +76,48 @@ Boolean function in a canonical way. (It is actually a &quot;Reduced Ordered
 Binary Decision Diagram&quot;, which gives it its canonicity assuming terminals
 are ordered consistently.)</p>
                            </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.Cube.html'
+                                  title='boolean_expression::Cube'>Cube</a></td>
+                           <td class='docblock short'>
+                                <p>A <code>Cube</code> is one (multidimensional) cube in the variable space: i.e., a
+particular set of variable assignments, where each variable is assigned
+either true, false, or &quot;don&#39;t care&quot;.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.CubeList.html'
+                                  title='boolean_expression::CubeList'>CubeList</a></td>
+                           <td class='docblock short'>
+                                <p>A <code>CubeList</code> is a sum (OR&#39;d list) of cubes. It represents a Boolean
+expression in sum-of-products form, by construction.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='struct' href='struct.PersistedBDD.html'
+                                  title='boolean_expression::PersistedBDD'>PersistedBDD</a></td>
+                           <td class='docblock short'>
+                                <p>A <code>PersistedBDD</code> is a wrapper around a <code>BDD</code> and a <code>BDDOutput</code> that tracks
+how much of the BDD has already been writen out, and writes out new nodes
+and labels as required when its <code>persist()</code> method is called.</p>
+                           </td>
                        </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
+                       <tr class=' module-item'>
+                           <td><a class='enum' href='enum.CubeMergeResult.html'
+                                  title='boolean_expression::CubeMergeResult'>CubeMergeResult</a></td>
+                           <td class='docblock short'>
+                                <p>The result of attempting to merge two cubes.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class='enum' href='enum.CubeVar.html'
+                                  title='boolean_expression::CubeVar'>CubeVar</a></td>
+                           <td class='docblock short'>
+                                <p>A variable assignment in a cube.</p>
+                           </td>
+                       </tr>
                        <tr class=' module-item'>
                            <td><a class='enum' href='enum.Expr.html'
                                   title='boolean_expression::Expr'>Expr</a></td>
@@ -92,14 +141,25 @@ AND, OR, NOT.</p>
                            <td class='docblock short'>
                                 <p>A special terminal <code>BDDFunc</code> which is constant <code>false</code> (zero).</p>
                            </td>
+                       </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class='trait' href='trait.BDDOutput.html'
+                                  title='boolean_expression::BDDOutput'>BDDOutput</a></td>
+                           <td class='docblock short'>
+                                <p>The <code>BDDOutput</code> trait provides an interface to inform a listener about new
+BDD nodes that are created. It allows the user to persist a BDD to a stream
+(e.g., a log or trace file) as a long-running process executes. A
+<code>BDDOutput</code> instance may be provided to all BDD operations.</p>
+                           </td>
                        </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
 <table>
                        <tr class=' module-item'>
                            <td><a class='type' href='type.BDDFunc.html'
                                   title='boolean_expression::BDDFunc'>BDDFunc</a></td>
                            <td class='docblock short'>
-                                <p>A <code>BDDFunc</code> is a function index within a particular <code>BDD</code> index. It must
-only be used with the <code>BDD</code> instance which produced it.</p>
+                                <p>A <code>BDDFunc</code> is a function index within a particular <code>BDD</code>. It must only
+be used with the <code>BDD</code> instance which produced it.</p>
                            </td>
                        </tr></table></section>
     <section id='search' class="content hidden"></section>
