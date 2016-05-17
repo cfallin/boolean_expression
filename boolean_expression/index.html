@@ -47,15 +47,16 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-0' class='srclink' href='../src/boolean_expression/src/lib.rs.html#7-36' title='goto source code'>[src]</a></span></h1>
+               </span><a id='src-0' class='srclink' href='../src/boolean_expression/src/lib.rs.html#7-37' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id='boolean_expression-expression-manipulation--bdd-library' class='section-header'><a href='#boolean_expression-expression-manipulation--bdd-library'>boolean_expression expression manipulation / BDD library</a></h1>
 <p>This crate provides for the manipulation and evaluation of Boolean expressions
 and Binary Decision Diagrams (BDDs), and the construction of BDDs from Boolean
 expressions. It can also simplify Boolean expressions via either a set of rules
-such as DeMorgan&#39;s Law (see <code>Expr::simplify()</code>), or via a roundtrip through a <code>BDD</code>
-and a cubelist-based term reduction (see <code>BDD::from_expr()</code> and
-<code>BDD::to_expr()</code>). The latter is more powerful, but also more expensive.</p>
+such as DeMorgan&#39;s Law (see <code>Expr::simplify_via_laws()</code>), or via a
+roundtrip through a <code>BDD</code> and a cubelist-based term reduction (see
+<code>Expr::simplify_via_bdd()</code>). The latter is more powerful, but also more
+expensive.</p>
 
 <p>The main pieces of interest are:</p>
 
