@@ -99,9 +99,10 @@ expression in sum-of-products form, by construction.</p>
                            <td><a class='struct' href='struct.PersistedBDD.html'
                                   title='boolean_expression::PersistedBDD'>PersistedBDD</a></td>
                            <td class='docblock short'>
-                                <p>A <code>PersistedBDD</code> is a wrapper around a <code>BDD</code> and a <code>BDDOutput</code> that tracks
-how much of the BDD has already been writen out, and writes out new nodes
-and labels as required when its <code>persist()</code> method is called.</p>
+                                <p>A <code>PersistedBDD</code> is a wrapper around a <code>BDD</code> that provides a means to write
+BDD labels and nodes out to a <code>BDDOutput</code>. It tracks how much of the BDD
+has already been writen out, and writes out new nodes and labels as
+required when its <code>persist()</code> or <code>persist_all()</code> method is called.</p>
                            </td>
                        </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
