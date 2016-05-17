@@ -1,6 +1,6 @@
 [package]
 name = "boolean_expression"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Chris Fallin <cfallin@c1f.net>"]
 description = "A library for manipulating and evaluating Boolean expressions and BDDs"
 repository = "https://github.com/cfallin/boolean_expression"
