@@ -46,6 +46,9 @@ impl LabelBDD {
     }
 
     fn get_node(&mut self, label: BDDLabel, lo: BDDFunc, hi: BDDFunc) -> BDDFunc {
+        if lo == hi {
+            return lo;
+        }
         let n = BDDNode {
             label: label,
             lo: lo,
