@@ -377,10 +377,93 @@ impl<T> BDD<T>
     }
 }
 
+/// The `BDDOutput` trait provides an interface to inform a listener about new
+/// BDD nodes that are created. It allows the user to persist a BDD to a stream
+/// (e.g., a log or trace file) as a long-running process executes. A
+/// `BDDOutput` instance may be provided to all BDD operations.
+pub trait BDDOutput<T, E> {
+    fn write_label(&self, label: T, label_id: u64) -> Result<(), E>;
+    fn write_node(&self,
+                  node_id: BDDFunc,
+                  label_id: u64,
+                  lo: BDDFunc,
+                  hi: BDDFunc)
+                  -> Result<(), E>;
+}
+
+/// A `PersistedBDD` is a wrapper around a `BDD` and a `BDDOutput` that tracks
+/// how much of the BDD has already been writen out, and writes out new nodes
+/// and labels as required when its `persist()` method is called.
+pub struct PersistedBDD<'a, T, E>
+    where T: Clone + Debug + Eq + Ord + Hash,
+          T: 'a,
+          E: 'a
+{
+    bdd: BDD<T>,
+    output: &'a BDDOutput<T, E>,
+    next_output_func: BDDFunc,
+    next_output_label: BDDLabel,
+}
+
+impl<'a, T, E> PersistedBDD<'a, T, E>
+    where T: Clone + Debug + Eq + Ord + Hash,
+          T: 'a,
+          E: 'a
+{
+    /// Create a new `PersistedBDD` wrapping the given output.
+    pub fn new(output: &'a BDDOutput<T, E>) -> PersistedBDD<'a, T, E> {
+        PersistedBDD {
+            bdd: BDD::new(),
+            output: output,
+            next_output_func: 0,
+            next_output_label: 0,
+        }
+    }
+
+    /// Return the inner BDD.
+    pub fn bdd(&self) -> &BDD<T> {
+        &self.bdd
+    }
+
+    /// Return the inner BDD.
+    pub fn bdd_mut(&mut self) -> &mut BDD<T> {
+        &mut self.bdd
+    }
+
+    /// Persist (at least) all labels and nodes in the BDD necessary to fully
+    /// describe BDD function `f`. More records than strictly necessary may be
+    /// written out.
+    pub fn persist(&mut self, f: BDDFunc) -> Result<(), E> {
+        while self.next_output_label < self.bdd.rev_labels.len() {
+            let id = self.next_output_label;
+            let t = self.bdd.rev_labels[id].clone();
+            try!(self.output.write_label(t, id as u64));
+            self.next_output_label += 1;
+        }
+        while self.next_output_func <= f {
+            let id = self.next_output_func;
+            let node = &self.bdd.bdd.nodes[id];
+            try!(self.output.write_node(id, node.label as u64, node.lo, node.hi));
+            self.next_output_func += 1;
+        }
+        Ok(())
+    }
+
+    pub fn persist_all(&mut self) -> Result<(), E> {
+        if self.bdd.bdd.nodes.len() > 0 {
+            let last_f = self.bdd.bdd.nodes.len() - 1;
+            self.persist(last_f)
+        } else {
+            Ok(())
+        }
+    }
+}
+
 mod test {
     use super::*;
     use Expr;
     use std::collections::HashMap;
+    use std::cell::RefCell;
     extern crate rand;
     use self::rand::Rng;
 
@@ -479,5 +562,60 @@ mod test {
         assert!(b.to_expr(f_0_and_1_or_2) ==
                 Expr::or(Expr::and(Expr::Terminal(0), Expr::Terminal(2)),
                          Expr::and(Expr::Terminal(0), Expr::Terminal(1))));
+    }
+
+    #[derive(Clone, Debug)]
+    struct InMemoryBDDLog {
+        labels: RefCell<Vec<(u64, String)>>,
+        nodes: RefCell<Vec<(BDDFunc, u64, BDDFunc, BDDFunc)>>,
+    }
+
+    impl InMemoryBDDLog {
+        pub fn new() -> InMemoryBDDLog {
+            InMemoryBDDLog {
+                labels: RefCell::new(Vec::new()),
+                nodes: RefCell::new(Vec::new()),
+            }
+        }
+    }
+
+    impl BDDOutput<String, ()> for InMemoryBDDLog {
+        fn write_label(&self, l: String, label_id: u64) -> Result<(), ()> {
+            let mut labels = self.labels.borrow_mut();
+            labels.push((label_id, l));
+            Ok(())
+        }
+
+        fn write_node(&self,
+                      node_id: BDDFunc,
+                      label_id: u64,
+                      lo: BDDFunc,
+                      hi: BDDFunc)
+                      -> Result<(), ()> {
+            let mut nodes = self.nodes.borrow_mut();
+            nodes.push((node_id, label_id, lo, hi));
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn persist_bdd() {
+        let out = InMemoryBDDLog::new();
+        let mut p = PersistedBDD::new(&out);
+        let term_a = p.bdd_mut().terminal("A".to_owned());
+        let term_b = p.bdd_mut().terminal("B".to_owned());
+        let term_c = p.bdd_mut().terminal("C".to_owned());
+        let ab = p.bdd_mut().and(term_a, term_b);
+        let ab_or_c = p.bdd_mut().or(ab, term_c);
+        p.persist(ab_or_c).unwrap();
+        assert!(*out.labels.borrow() ==
+                vec![(0, "A".to_owned()), (1, "B".to_owned()), (2, "C".to_owned())]);
+        assert!(*out.nodes.borrow() ==
+                vec![(0, 0, BDD_ZERO, BDD_ONE),
+                     (1, 1, BDD_ZERO, BDD_ONE),
+                     (2, 2, BDD_ZERO, BDD_ONE),
+                     (3, 0, BDD_ZERO, 1),
+                     (4, 1, 2, BDD_ONE),
+                     (5, 0, 2, 4)]);
     }
 }
