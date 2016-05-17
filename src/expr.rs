@@ -149,7 +149,7 @@ impl<T> Expr<T>
     }
 
     /// Simplify an expression via a roundtrip through a `BDD`. This procedure
-    /// is more effective than `BDD::simplify_via_laws()`, but more expensive.
+    /// is more effective than `Expr::simplify_via_laws()`, but more expensive.
     /// This roundtrip will implicitly simplify an arbitrarily complicated
     /// function (by construction, as the BDD is built), and then find a
     /// quasi-minimal set of terms using cubelist-based reduction. For example:
