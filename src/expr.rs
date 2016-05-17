@@ -107,13 +107,14 @@ impl<T> Expr<T>
         }
     }
 
-    /// Simplify an expression.
+    /// Simplify an expression in a relatively cheap way using well-known logic
+    /// identities.
     ///
     /// This function performs certain reductions using DeMorgan's Law,
     /// distribution of ANDs over ORs, and certain identities involving
     /// constants, to simplify an expression. The result will always be in
     /// sum-of-products form: nodes will always appear in order (from
-    /// expression tree root to leaves) `OR -> AND -> NOT`. In other words, /
+    /// expression tree root to leaves) `OR -> AND -> NOT`. In other words,
     /// `AND` nodes may only have `NOT` nodes (or terminals or constants) as
     /// children, and `NOT` nodes may only have terminals or constants as
     /// children.
@@ -122,10 +123,50 @@ impl<T> Expr<T>
     /// The terms may thus be redundant (i.e., `And(a, b)` may appear twice), and
     /// combinable terms may exist (i.e., `And(a, b)` and `And(a, Not(b))` may
     /// appear in the `OR`'d list of terms, where these could be combined to
-    /// simply `a` but are not). Minterm reduction may be implemented in the
-    /// future.
-    pub fn simplify(self) -> Expr<T> {
-        simplify::simplify(self)
+    /// simply `a` but are not). For example:
+    ///
+    /// ```
+    /// use boolean_expression::Expr;
+    ///
+    /// // This simplifies using DeMorgan's Law:
+    /// let expr = Expr::not(Expr::or(Expr::Terminal(0), Expr::Terminal(1)));
+    /// let simplified = expr.simplify_via_laws();
+    /// assert_eq!(simplified,
+    ///     Expr::and(Expr::not(Expr::Terminal(0)),
+    ///               Expr::not(Expr::Terminal(1))));
+    ///
+    /// // This doesn't simplify, though:
+    /// let expr = Expr::or(
+    ///             Expr::and(Expr::Terminal(0), Expr::Terminal(1)),
+    ///             Expr::and(Expr::Terminal(0), Expr::not(Expr::Terminal(1))));
+    /// let simplified = expr.clone().simplify_via_laws();
+    /// assert_eq!(simplified, expr);
+    /// ```
+    ///
+    /// For better (but more expensive) simplification, see `simplify_via_bdd()`.
+    pub fn simplify_via_laws(self) -> Expr<T> {
+        simplify::simplify_via_laws(self)
+    }
+
+    /// Simplify an expression via a roundtrip through a `BDD`. This procedure
+    /// is more effective than `BDD::simplify_via_laws()`, but more expensive.
+    /// This roundtrip will implicitly simplify an arbitrarily complicated
+    /// function (by construction, as the BDD is built), and then find a
+    /// quasi-minimal set of terms using cubelist-based reduction. For example:
+    ///
+    /// ```
+    /// use boolean_expression::Expr;
+    ///
+    /// // `simplify_via_laws()` cannot combine these terms, but
+    /// // `simplify_via_bdd()` will:
+    /// let expr = Expr::or(
+    ///             Expr::and(Expr::Terminal(0), Expr::Terminal(1)),
+    ///             Expr::and(Expr::Terminal(0), Expr::not(Expr::Terminal(1))));
+    /// let simplified = expr.simplify_via_bdd();
+    /// assert_eq!(simplified, Expr::Terminal(0));
+    /// ```
+    pub fn simplify_via_bdd(self) -> Expr<T> {
+        simplify::simplify_via_bdd(self)
     }
 
     /// Map terminal values using the specified mapping function.

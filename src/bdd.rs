@@ -15,8 +15,8 @@ use itertools::Itertools;
 use Expr;
 use cubes::{CubeList, Cube, CubeVar};
 
-/// A `BDDFunc` is a function index within a particular `BDD` index. It must
-/// only be used with the `BDD` instance which produced it.
+/// A `BDDFunc` is a function index within a particular `BDD`. It must only
+/// be used with the `BDD` instance which produced it.
 pub type BDDFunc = usize;
 
 /// A special terminal `BDDFunc` which is constant `false` (zero).

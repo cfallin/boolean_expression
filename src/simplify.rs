@@ -9,6 +9,7 @@ use std::marker::PhantomData;
 use std::hash::Hash;
 
 use Expr;
+use BDD;
 
 struct SimplifyContext<T> {
     changed: bool,
@@ -103,7 +104,7 @@ impl<T> SimplifyContext<T>
     }
 }
 
-pub fn simplify<T>(e: Expr<T>) -> Expr<T>
+pub fn simplify_via_laws<T>(e: Expr<T>) -> Expr<T>
     where T: Clone + Debug + Eq + Ord + Hash
 {
     let mut ctx = SimplifyContext::new();
@@ -117,6 +118,16 @@ pub fn simplify<T>(e: Expr<T>) -> Expr<T>
     e
 }
 
+// This expression simplification path is tested via the tests for
+// `BDD::from_expr` and `BDD::to_expr`, so we don't replicate those tests here.
+pub fn simplify_via_bdd<T>(e: Expr<T>) -> Expr<T>
+    where T: Clone + Debug + Eq + Ord + Hash
+{
+    let mut bdd = BDD::new();
+    let f = bdd.from_expr(&e);
+    bdd.to_expr(f)
+}
+
 mod test {
     use Expr;
     use super::*;
@@ -126,7 +137,7 @@ mod test {
     fn run_test<T>(orig: Expr<T>, expected: Expr<T>)
         where T: Clone + Debug + Eq + Ord + Hash
     {
-        let output = simplify(orig.clone());
+        let output = simplify_via_laws(orig.clone());
         println!("Simplify: {:?} -> {:?} (expected {:?})",
                  orig,
                  output,

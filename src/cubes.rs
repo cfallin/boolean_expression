@@ -146,6 +146,15 @@ impl Ord for Cube {
 
 const CUBELIST_ALLOCED_SIZE: usize = 4;
 
+/// A `CubeList` is a sum (OR'd list) of cubes. It represents a Boolean
+/// expression in sum-of-products form, by construction.
+///
+/// The `CubeList` abstraction supports only indexed anonymous variables
+/// (variable 0, 1, ...), and does not (yet) have a wrapper supporting an
+/// arbitrary terminal type `T`. This may be implemented in the future.
+///
+/// The `CubeList` abstraction is used internally to convert from a `BDD`
+/// to a quasi-minimized Boolean expression.
 #[derive(Clone, Debug)]
 pub struct CubeList(SmallVec<[Cube; CUBE_ALLOCED_SIZE]>);
 
