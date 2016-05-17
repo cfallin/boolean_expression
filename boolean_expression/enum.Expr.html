@@ -126,7 +126,7 @@ simply <code>a</code> but are not). For example:</p>
 <p>For better (but more expensive) simplification, see <code>simplify_via_bdd()</code>.</p>
 </div><h4 id='method.simplify_via_bdd' class='method'><code>fn <a href='#method.simplify_via_bdd' class='fnname'>simplify_via_bdd</a>(self) -&gt; <a class='enum' href='../boolean_expression/enum.Expr.html' title='boolean_expression::Expr'>Expr</a>&lt;T&gt;</code></h4>
 <div class='docblock'><p>Simplify an expression via a roundtrip through a <code>BDD</code>. This procedure
-is more effective than <code>BDD::simplify_via_laws()</code>, but more expensive.
+is more effective than <code>Expr::simplify_via_laws()</code>, but more expensive.
 This roundtrip will implicitly simplify an arbitrarily complicated
 function (by construction, as the BDD is built), and then find a
 quasi-minimal set of terms using cubelist-based reduction. For example:</p>
