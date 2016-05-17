@@ -12,9 +12,10 @@
 //! This crate provides for the manipulation and evaluation of Boolean expressions
 //! and Binary Decision Diagrams (BDDs), and the construction of BDDs from Boolean
 //! expressions. It can also simplify Boolean expressions via either a set of rules
-//! such as DeMorgan's Law (see `Expr::simplify()`), or via a roundtrip through a `BDD`
-//! and a cubelist-based term reduction (see `BDD::from_expr()` and
-//! `BDD::to_expr()`). The latter is more powerful, but also more expensive.
+//! such as DeMorgan's Law (see `Expr::simplify_via_laws()`), or via a
+//! roundtrip through a `BDD` and a cubelist-based term reduction (see
+//! `Expr::simplify_via_bdd()`). The latter is more powerful, but also more
+//! expensive.
 //!
 //! The main pieces of interest are:
 //!
