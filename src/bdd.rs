@@ -274,7 +274,6 @@ pub struct BDD<T>
     bdd: LabelBDD,
     labels: HashMap<T, BDDLabel>,
     rev_labels: Vec<T>,
-    next_label: BDDLabel,
 }
 
 impl<T> BDD<T>
@@ -286,7 +285,6 @@ impl<T> BDD<T>
             bdd: LabelBDD::new(),
             labels: HashMap::new(),
             rev_labels: Vec::new(),
-            next_label: 0,
         }
     }
 
@@ -294,8 +292,7 @@ impl<T> BDD<T>
         match self.labels.entry(t.clone()) {
             HashEntry::Occupied(o) => *o.get(),
             HashEntry::Vacant(v) => {
-                let next_id = self.next_label;
-                self.next_label += 1;
+                let next_id = self.rev_labels.len() as BDDLabel;
                 v.insert(next_id);
                 self.rev_labels.push(t);
                 next_id
@@ -360,7 +357,7 @@ impl<T> BDD<T>
     /// Evaluate the function `f` in the BDD with the given terminal
     /// assignments. Any terminals not specified in `values` default to `false`.
     pub fn evaluate(&self, f: BDDFunc, values: &HashMap<T, bool>) -> bool {
-        let size = self.next_label;
+        let size = self.rev_labels.len();
         let mut valarray = Vec::with_capacity(size);
         valarray.resize(size, false);
         for (t, l) in &self.labels {
@@ -372,7 +369,7 @@ impl<T> BDD<T>
     /// Convert the BDD to a minimized sum-of-products expression.
     pub fn to_expr(&self, f: BDDFunc) -> Expr<T> {
         self.bdd
-            .to_expr(f, self.next_label)
+            .to_expr(f, self.rev_labels.len())
             .map(|t: &BDDLabel| self.rev_labels[*t as usize].clone())
     }
 }
@@ -452,6 +449,53 @@ impl<T> PersistedBDD<T>
         } else {
             Ok(())
         }
+    }
+}
+
+/// A `BDDLoader` provides a way to inject BDD nodes directly, as they were
+/// previously dumped by a `PersistedBDD` to a `BDDOutput`. The user should
+/// create a `BDDLoader` instance wrapped around a `BDD` and call
+/// `inject_label` and `inject_node` as appropriate to inject labels and nodes.
+pub struct BDDLoader<'a, T>
+    where T: Clone + Debug + Eq + Ord + Hash + 'a
+{
+    bdd: &'a mut BDD<T>,
+}
+
+impl<'a, T> BDDLoader<'a, T>
+    where T: Clone + Debug + Eq + Ord + Hash + 'a
+{
+    /// Create a new `BDDLoader` wrapping the given `bdd`. The `BDDLoader`
+    /// holds a mutable reference to `bdd` until destroyed. `bdd` must be empty
+    /// initially.
+    pub fn new(bdd: &'a mut BDD<T>) -> BDDLoader<'a, T> {
+        assert!(bdd.labels.len() == 0);
+        assert!(bdd.rev_labels.len() == 0);
+        assert!(bdd.bdd.nodes.len() == 0);
+        BDDLoader { bdd: bdd }
+    }
+
+    /// Inject a new label into the BDD. The `id` must be the next consecutive
+    /// `id`; i.e., labels must be injected in the order they were dumped to a
+    /// `BDDOutput`.
+    pub fn inject_label(&mut self, t: T, id: u64) {
+        assert!(id == self.bdd.rev_labels.len() as u64);
+        self.bdd.rev_labels.push(t.clone());
+        self.bdd.labels.insert(t, id as BDDLabel);
+    }
+
+    /// Inject a new node into the BDD. The `id` must be the next consecutive
+    /// `id`; i.e., nodes must be injected in the order they were dumped to a
+    /// `BDDOutput`.
+    pub fn inject_node(&mut self, id: BDDFunc, label_id: u64, lo: BDDFunc, hi: BDDFunc) {
+        assert!(id == self.bdd.bdd.nodes.len() as BDDFunc);
+        let n = BDDNode {
+            label: label_id as BDDLabel,
+            lo: lo,
+            hi: hi,
+        };
+        self.bdd.bdd.nodes.push(n.clone());
+        self.bdd.bdd.dedup_hash.insert(n, id);
     }
 }
 
@@ -613,5 +657,21 @@ mod test {
                      (3, 0, BDD_ZERO, 1),
                      (4, 1, 2, BDD_ONE),
                      (5, 0, 2, 4)]);
+    }
+
+    #[test]
+    fn load_bdd() {
+        let mut bdd = BDD::new();
+        {
+            let mut loader = BDDLoader::new(&mut bdd);
+            loader.inject_label("A".to_owned(), 0);
+            loader.inject_label("B".to_owned(), 1);
+            loader.inject_node(0, 0, BDD_ZERO, 1);
+            loader.inject_node(1, 1, BDD_ZERO, BDD_ONE);
+        }
+        let mut h = HashMap::new();
+        h.insert("A".to_owned(), true);
+        h.insert("B".to_owned(), true);
+        assert!(bdd.evaluate(1, &h) == true);
     }
 }
