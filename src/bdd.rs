@@ -4,13 +4,15 @@
 // License.
 //
 
-use std::collections::HashMap;
+
+use std::collections::{HashMap, HashSet, BTreeSet};
 use std::collections::hash_map::Entry as HashEntry;
 use std::cmp;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::usize;
 use itertools::Itertools;
+
 
 use Expr;
 use cubes::{CubeList, Cube, CubeVar};
@@ -372,6 +374,49 @@ impl<T> BDD<T>
             .to_expr(f, self.rev_labels.len())
             .map(|t: &BDDLabel| self.rev_labels[*t as usize].clone())
     }
+
+    // export bdd to dot format to enable visualization
+    // the algorithm starts at the f BDDfunction and then recursively collects all BDDNodes until BDD_ZERO and BDD_ONE
+    // the output is straightforward 
+    pub fn export_bdd_to_dot(&self, f: BDDFunc) -> String
+    {
+        let mut out = String::from("digraph bdd {\n");
+
+        //println!("{:?}", self.export_node(f));
+
+        for func in self.export_node(f) {
+            if func <= f {
+                out.push_str(&format!("n{} [label = {:?}];\n", func, self.rev_labels[self.bdd.nodes[func].label]));
+                out.push_str(&format!("n{} -> n{} [style=dotted];\n", func, self.bdd.nodes[func].lo));
+                out.push_str(&format!("n{} -> n{};\n", func, self.bdd.nodes[func].hi));
+            }
+        }
+
+        out.push_str(&format!("n{} [label=\"0\"];\n", BDD_ZERO));
+        out.push_str(&format!("n{} [label=\"1\"];\n", BDD_ONE));
+
+        out.push_str("}");
+
+        out.to_string()
+    }
+
+    // we use a BTreeSet instead of a HashSet since its order is stable
+    fn export_node(&self, f:BDDFunc) -> BTreeSet<BDDFunc> {
+        if f != BDD_ZERO && f != BDD_ONE {
+            let mut set = BTreeSet::new();
+            set.insert(f);
+            let hi = self.export_node(self.bdd.nodes[f].hi);
+            let lo = self.export_node(self.bdd.nodes[f].lo);
+            set = set.union(&hi).cloned().collect();
+            set = set.union(&lo).cloned().collect();
+            set
+        }
+        else
+        {
+             BTreeSet::new()
+        }
+    }
+
 }
 
 /// The `BDDOutput` trait provides an interface to inform a listener about new
@@ -637,6 +682,83 @@ mod test {
             Ok(())
         }
     }
+
+    #[test]
+    // the tests compare the dot output to a string which has been manually verified to be correct
+    fn dot_output() {
+        let mut bdd = BDD::new();
+        let a = bdd.terminal("a");
+        let b = bdd.terminal("b");
+        let b_and_a = bdd.and(a,b);
+        {
+            let dot = bdd.export_bdd_to_dot(b_and_a);
+            assert_eq!(dot, indoc!("
+                            digraph bdd {
+                            n1 [label = \"b\"];
+                            n1 -> n18446744073709551615 [style=dotted];
+                            n1 -> n18446744073709551614;
+                            n2 [label = \"a\"];
+                            n2 -> n18446744073709551615 [style=dotted];
+                            n2 -> n1;
+                            n18446744073709551615 [label=\"0\"];
+                            n18446744073709551614 [label=\"1\"];
+                            }"));
+        }
+        let c = bdd.terminal("c");
+        let c_or_a = bdd.or(c, a);
+        {
+            let dot = bdd.export_bdd_to_dot(c_or_a);
+            assert_eq!(dot, indoc!("
+                            digraph bdd {
+                            n3 [label = \"c\"];
+                            n3 -> n18446744073709551615 [style=dotted];
+                            n3 -> n18446744073709551614;
+                            n4 [label = \"a\"];
+                            n4 -> n3 [style=dotted];
+                            n4 -> n18446744073709551614;
+                            n18446744073709551615 [label=\"0\"];
+                            n18446744073709551614 [label=\"1\"];
+                            }"));
+        }
+        let not_c_and_b = bdd.not(b_and_a);
+        let c_or_a_and_not_b_and_a = bdd.and(c_or_a, not_c_and_b);
+        {
+            let dot = bdd.export_bdd_to_dot(c_or_a_and_not_b_and_a);
+            assert_eq!(dot, indoc!("
+                            digraph bdd {
+                            n3 [label = \"c\"];
+                            n3 -> n18446744073709551615 [style=dotted];
+                            n3 -> n18446744073709551614;
+                            n5 [label = \"b\"];
+                            n5 -> n18446744073709551614 [style=dotted];
+                            n5 -> n18446744073709551615;
+                            n7 [label = \"a\"];
+                            n7 -> n3 [style=dotted];
+                            n7 -> n5;
+                            n18446744073709551615 [label=\"0\"];
+                            n18446744073709551614 [label=\"1\"];
+                            }"));
+        }
+        {
+            let new_a = bdd.terminal("a");
+            let d = bdd.terminal("d");
+            let new_a_or_d = bdd.or(new_a, d);
+            let dot = bdd.export_bdd_to_dot(new_a_or_d);
+            println!("{}", dot);
+            assert_eq!(dot, indoc!("
+                            digraph bdd {
+                            n8 [label = \"d\"];
+                            n8 -> n18446744073709551615 [style=dotted];
+                            n8 -> n18446744073709551614;
+                            n9 [label = \"a\"];
+                            n9 -> n8 [style=dotted];
+                            n9 -> n18446744073709551614;
+                            n18446744073709551615 [label=\"0\"];
+                            n18446744073709551614 [label=\"1\"];
+                            }"));
+        }
+    }
+
 
     #[test]
     fn persist_bdd() {

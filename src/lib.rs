@@ -27,6 +27,10 @@
 extern crate smallvec;
 extern crate itertools;
 
+#[macro_use]
+extern crate indoc;
+
+
 mod expr;
 mod bdd;
 mod cubes;
