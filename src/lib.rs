@@ -24,12 +24,11 @@
 //! * `CubeList`, a low-level datatype with support for cubelist manipulation
 //!   (used when converting `BDD` functions to expressions).
 
-extern crate smallvec;
 extern crate itertools;
+extern crate smallvec;
 
 #[macro_use]
 extern crate indoc;
-
 
 mod expr;
 mod bdd;

@@ -6,7 +6,7 @@
 
 use std::iter;
 use std::slice;
-use std::cmp::{PartialEq, Eq, PartialOrd, Ord, Ordering};
+use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 use std::collections::VecDeque;
 use smallvec::SmallVec;
 
@@ -83,12 +83,12 @@ impl Cube {
                         mismatches += 1;
                         mismatch_pos = i;
                     }
-                    (&CubeVar::False, &CubeVar::DontCare) |
-                    (&CubeVar::True, &CubeVar::DontCare) => {
+                    (&CubeVar::False, &CubeVar::DontCare)
+                    | (&CubeVar::True, &CubeVar::DontCare) => {
                         left_covered += 1;
                     }
-                    (&CubeVar::DontCare, &CubeVar::False) |
-                    (&CubeVar::DontCare, &CubeVar::True) => {
+                    (&CubeVar::DontCare, &CubeVar::False)
+                    | (&CubeVar::DontCare, &CubeVar::True) => {
                         right_covered += 1;
                     }
                     _ => {}
@@ -113,17 +113,19 @@ impl Cube {
     /// Return a new cube equal to this cube, but with the particular variable
     // assigned the given value.
     pub fn with_var(&self, idx: usize, val: CubeVar) -> Cube {
-        Cube(self.0
-                 .iter()
-                 .enumerate()
-                 .map(|(i, var)| {
-                     if i == idx {
-                         val.clone()
-                     } else {
-                         var.clone()
-                     }
-                 })
-                 .collect())
+        Cube(
+            self.0
+                .iter()
+                .enumerate()
+                .map(|(i, var)| {
+                    if i == idx {
+                        val.clone()
+                    } else {
+                        var.clone()
+                    }
+                })
+                .collect(),
+        )
     }
 }
 
@@ -236,15 +238,20 @@ impl CubeList {
         }
 
         let out = out.into_iter()
-                     .zip(canceled.iter())
-                     .filter(|&(_, flag)| !flag)
-                     .map(|(cube, _)| cube)
-                     .collect();
+            .zip(canceled.iter())
+            .filter(|&(_, flag)| !flag)
+            .map(|(cube, _)| cube)
+            .collect();
         CubeList(out)
     }
 
     pub fn with_var(&self, idx: usize, val: CubeVar) -> CubeList {
-        CubeList(self.0.iter().map(|c| c.with_var(idx, val.clone())).collect())
+        CubeList(
+            self.0
+                .iter()
+                .map(|c| c.with_var(idx, val.clone()))
+                .collect(),
+        )
     }
 }
 
@@ -252,15 +259,16 @@ mod test {
     use super::*;
 
     fn make_cube(elems: &[u32]) -> Cube {
-        Cube(elems.iter()
-                  .map(|i| {
-                      match *i {
-                          0 => CubeVar::False,
-                          1 => CubeVar::True,
-                          _ => CubeVar::DontCare,
-                      }
-                  })
-                  .collect())
+        Cube(
+            elems
+                .iter()
+                .map(|i| match *i {
+                    0 => CubeVar::False,
+                    1 => CubeVar::True,
+                    _ => CubeVar::DontCare,
+                })
+                .collect(),
+        )
     }
 
     #[test]
@@ -291,19 +299,28 @@ mod test {
         // Irredundant cubes with some overlap: no cancelation.
         assert!(make_cube(&[1, 2]).merge_with(&make_cube(&[2, 1])) == CubeMergeResult::None);
         // Left cube covers right cube: cancel right.
-        assert!(make_cube(&[1, 2, 2]).merge_with(&make_cube(&[1, 1, 0])) ==
-                CubeMergeResult::CancelRight);
+        assert!(
+            make_cube(&[1, 2, 2]).merge_with(&make_cube(&[1, 1, 0]))
+                == CubeMergeResult::CancelRight
+        );
         // Right cube may be expanded to overlap with left cube.
-        assert!(make_cube(&[1, 1, 2]).merge_with(&make_cube(&[1, 0, 0])) ==
-                CubeMergeResult::ExpandRight(make_cube(&[1, 2, 0])));
+        assert!(
+            make_cube(&[1, 1, 2]).merge_with(&make_cube(&[1, 0, 0]))
+                == CubeMergeResult::ExpandRight(make_cube(&[1, 2, 0]))
+        );
         // The above, with right and left flipped.
-        assert!(make_cube(&[1, 1, 0]).merge_with(&make_cube(&[1, 2, 2])) ==
-                CubeMergeResult::CancelLeft);
-        assert!(make_cube(&[1, 0, 0]).merge_with(&make_cube(&[1, 1, 2])) ==
-                CubeMergeResult::ExpandLeft(make_cube(&[1, 2, 0])));
+        assert!(
+            make_cube(&[1, 1, 0]).merge_with(&make_cube(&[1, 2, 2])) == CubeMergeResult::CancelLeft
+        );
+        assert!(
+            make_cube(&[1, 0, 0]).merge_with(&make_cube(&[1, 1, 2]))
+                == CubeMergeResult::ExpandLeft(make_cube(&[1, 2, 0]))
+        );
         // Cubes with one mismatch: merge.
-        assert!(make_cube(&[1, 1, 0]).merge_with(&make_cube(&[1, 1, 1])) ==
-                CubeMergeResult::Merge(make_cube(&[1, 1, 2])));
+        assert!(
+            make_cube(&[1, 1, 0]).merge_with(&make_cube(&[1, 1, 1]))
+                == CubeMergeResult::Merge(make_cube(&[1, 1, 2]))
+        );
         // Cubes with more than one mismatch: no merge.
         assert!(make_cube(&[1, 1, 0]).merge_with(&make_cube(&[1, 0, 1])) == CubeMergeResult::None);
     }
@@ -311,27 +328,42 @@ mod test {
     #[test]
     fn cubelist_merge() {
         // No merges.
-        assert!(CubeList::new()
-                    .merge(&CubeList::from_list(&[make_cube(&[1, 0, 0]), make_cube(&[0, 1, 1])])) ==
-                CubeList::from_list(&[make_cube(&[1, 0, 0]), make_cube(&[0, 1, 1])]));
+        assert!(
+            CubeList::new().merge(&CubeList::from_list(&[
+                make_cube(&[1, 0, 0]),
+                make_cube(&[0, 1, 1])
+            ])) == CubeList::from_list(&[make_cube(&[1, 0, 0]), make_cube(&[0, 1, 1])])
+        );
         // Multiple-stage merge.
-        assert!(CubeList::new().merge(&CubeList::from_list(&[make_cube(&[1, 0, 0]),
-                                                             make_cube(&[1, 1, 1]),
-                                                             make_cube(&[1, 0, 1]),
-                                                             make_cube(&[1, 1, 0])])) ==
-                CubeList::from_list(&[make_cube(&[1, 2, 2])]));
+        assert!(
+            CubeList::new().merge(&CubeList::from_list(&[
+                make_cube(&[1, 0, 0]),
+                make_cube(&[1, 1, 1]),
+                make_cube(&[1, 0, 1]),
+                make_cube(&[1, 1, 0])
+            ])) == CubeList::from_list(&[make_cube(&[1, 2, 2])])
+        );
         // Last term merges with first.
-        assert!(CubeList::new().merge(&CubeList::from_list(&[make_cube(&[1, 0, 0]),
-                                                             make_cube(&[0, 1, 1]),
-                                                             make_cube(&[1, 0, 1])])) ==
-                CubeList::from_list(&[make_cube(&[1, 0, 2]), make_cube(&[0, 1, 1])]));
+        assert!(
+            CubeList::new().merge(&CubeList::from_list(&[
+                make_cube(&[1, 0, 0]),
+                make_cube(&[0, 1, 1]),
+                make_cube(&[1, 0, 1])
+            ])) == CubeList::from_list(&[make_cube(&[1, 0, 2]), make_cube(&[0, 1, 1])])
+        );
         // New item cancels existing in list.
-        assert!(CubeList::new()
-                    .merge(&CubeList::from_list(&[make_cube(&[1, 0, 0]), make_cube(&[1, 2, 2])])) ==
-                CubeList::from_list(&[make_cube(&[1, 2, 2])]));
+        assert!(
+            CubeList::new().merge(&CubeList::from_list(&[
+                make_cube(&[1, 0, 0]),
+                make_cube(&[1, 2, 2])
+            ])) == CubeList::from_list(&[make_cube(&[1, 2, 2])])
+        );
         // Existing list item cancels new item.
-        assert!(CubeList::new()
-                    .merge(&CubeList::from_list(&[make_cube(&[1, 2, 2]), make_cube(&[1, 0, 0])])) ==
-                CubeList::from_list(&[make_cube(&[1, 2, 2])]));
+        assert!(
+            CubeList::new().merge(&CubeList::from_list(&[
+                make_cube(&[1, 2, 2]),
+                make_cube(&[1, 0, 0])
+            ])) == CubeList::from_list(&[make_cube(&[1, 2, 2])])
+        );
     }
 }

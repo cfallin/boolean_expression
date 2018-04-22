@@ -16,7 +16,8 @@ use simplify;
 /// AND, OR, NOT.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Expr<T>
-    where T: Clone + Debug + Eq + Ord + Hash
+where
+    T: Clone + Debug + Eq + Ord + Hash,
 {
     /// A terminal (free variable). This expression node represents a value that
     /// is not known until evaluation time.
@@ -35,7 +36,8 @@ pub enum Expr<T>
 }
 
 impl<T> Expr<T>
-    where T: Clone + Debug + Eq + Ord + Hash
+where
+    T: Clone + Debug + Eq + Ord + Hash,
 {
     /// Returns `true` if this `Expr` is a terminal.
     pub fn is_terminal(&self) -> bool {
@@ -171,15 +173,17 @@ impl<T> Expr<T>
 
     /// Map terminal values using the specified mapping function.
     pub fn map<F, R>(&self, f: F) -> Expr<R>
-        where F: Fn(&T) -> R,
-              R: Clone + Debug + Eq + Ord + Hash
+    where
+        F: Fn(&T) -> R,
+        R: Clone + Debug + Eq + Ord + Hash,
     {
         self.map1(&f)
     }
 
     fn map1<F, R>(&self, f: &F) -> Expr<R>
-        where F: Fn(&T) -> R,
-              R: Clone + Debug + Eq + Ord + Hash
+    where
+        F: Fn(&T) -> R,
+        R: Clone + Debug + Eq + Ord + Hash,
     {
         match self {
             &Expr::Terminal(ref t) => Expr::Terminal(f(t)),

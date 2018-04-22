@@ -4,8 +4,7 @@
 // License.
 //
 
-
-use std::collections::{HashMap, HashSet, BTreeSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::collections::hash_map::Entry as HashEntry;
 use std::cmp;
 use std::fmt::Debug;
@@ -13,9 +12,8 @@ use std::hash::Hash;
 use std::usize;
 use itertools::Itertools;
 
-
 use Expr;
-use cubes::{CubeList, Cube, CubeVar};
+use cubes::{Cube, CubeList, CubeVar};
 
 /// A `BDDFunc` is a function index within a particular `BDD`. It must only
 /// be used with the `BDD` instance which produced it.
@@ -191,24 +189,26 @@ impl LabelBDD {
         let hi = self.nodes[n].hi;
         let lo_list = match lo {
             BDD_ZERO => CubeList::new(),
-            BDD_ONE => {
-                CubeList::from_list(&[Cube::true_cube(nvars)])
-                    .with_var(label as usize, CubeVar::False)
-            }
+            BDD_ONE => CubeList::from_list(&[Cube::true_cube(nvars)])
+                .with_var(label as usize, CubeVar::False),
             _ => {
                 self.compute_cubelist(memoize_vec, lo, nvars);
-                memoize_vec[lo].as_ref().unwrap().with_var(label as usize, CubeVar::False)
+                memoize_vec[lo]
+                    .as_ref()
+                    .unwrap()
+                    .with_var(label as usize, CubeVar::False)
             }
         };
         let hi_list = match hi {
             BDD_ZERO => CubeList::new(),
-            BDD_ONE => {
-                CubeList::from_list(&[Cube::true_cube(nvars)])
-                    .with_var(label as usize, CubeVar::True)
-            }
+            BDD_ONE => CubeList::from_list(&[Cube::true_cube(nvars)])
+                .with_var(label as usize, CubeVar::True),
             _ => {
                 self.compute_cubelist(memoize_vec, hi, nvars);
-                memoize_vec[hi].as_ref().unwrap().with_var(label as usize, CubeVar::True)
+                memoize_vec[hi]
+                    .as_ref()
+                    .unwrap()
+                    .with_var(label as usize, CubeVar::True)
             }
         };
         let new_list = lo_list.merge(&hi_list);
@@ -217,23 +217,21 @@ impl LabelBDD {
 
     fn cube_to_expr(&self, c: &Cube) -> Expr<BDDLabel> {
         c.vars()
-         .enumerate()
-         .flat_map(|(i, v)| {
-             match v {
-                 &CubeVar::False => Some(Expr::not(Expr::Terminal(i))),
-                 &CubeVar::True => Some(Expr::Terminal(i)),
-                 &CubeVar::DontCare => None,
-             }
-         })
-         .fold1(|a, b| Expr::and(a, b))
-         .unwrap_or(Expr::Const(true))
+            .enumerate()
+            .flat_map(|(i, v)| match v {
+                &CubeVar::False => Some(Expr::not(Expr::Terminal(i))),
+                &CubeVar::True => Some(Expr::Terminal(i)),
+                &CubeVar::DontCare => None,
+            })
+            .fold1(|a, b| Expr::and(a, b))
+            .unwrap_or(Expr::Const(true))
     }
 
     fn cubelist_to_expr(&self, c: &CubeList) -> Expr<BDDLabel> {
         c.cubes()
-         .map(|c| self.cube_to_expr(c))
-         .fold1(|a, b| Expr::or(a, b))
-         .unwrap_or(Expr::Const(false))
+            .map(|c| self.cube_to_expr(c))
+            .fold1(|a, b| Expr::or(a, b))
+            .unwrap_or(Expr::Const(false))
     }
 
     pub fn to_expr(&self, func: BDDFunc, nvars: usize) -> Expr<BDDLabel> {
@@ -271,7 +269,8 @@ impl LabelBDD {
 /// in the worst case.
 #[derive(Clone, Debug)]
 pub struct BDD<T>
-    where T: Clone + Debug + Eq + Ord + Hash
+where
+    T: Clone + Debug + Eq + Ord + Hash,
 {
     bdd: LabelBDD,
     labels: HashMap<T, BDDLabel>,
@@ -279,7 +278,8 @@ pub struct BDD<T>
 }
 
 impl<T> BDD<T>
-    where T: Clone + Debug + Eq + Ord + Hash
+where
+    T: Clone + Debug + Eq + Ord + Hash,
 {
     /// Produce a new, empty, BDD.
     pub fn new() -> BDD<T> {
@@ -375,19 +375,25 @@ impl<T> BDD<T>
             .map(|t: &BDDLabel| self.rev_labels[*t as usize].clone())
     }
 
-    // export bdd to dot format to enable visualization
-    // the algorithm starts at the f BDDfunction and then recursively collects all BDDNodes until BDD_ZERO and BDD_ONE
-    // the output is straightforward 
-    pub fn export_bdd_to_dot(&self, f: BDDFunc) -> String
-    {
+    /// Export BDD to `dot` format (from the graphviz package) to enable visualization.
+    pub fn to_dot(&self, f: BDDFunc) -> String {
+        // the algorithm starts at the f BDDfunction and then recursively collects all BDDNodes
+        // until BDD_ZERO and BDD_ONE. The output for each node is straightforward: just a single
+        // `dot` node.
         let mut out = String::from("digraph bdd {\n");
 
-        //println!("{:?}", self.export_node(f));
-
-        for func in self.export_node(f) {
+        let mut nodes = BTreeSet::new();
+        self.reachable_nodes(f, &mut nodes);
+        for func in nodes {
             if func <= f {
-                out.push_str(&format!("n{} [label = {:?}];\n", func, self.rev_labels[self.bdd.nodes[func].label]));
-                out.push_str(&format!("n{} -> n{} [style=dotted];\n", func, self.bdd.nodes[func].lo));
+                out.push_str(&format!(
+                    "n{} [label = {:?}];\n",
+                    func, self.rev_labels[self.bdd.nodes[func].label]
+                ));
+                out.push_str(&format!(
+                    "n{} -> n{} [style=dotted];\n",
+                    func, self.bdd.nodes[func].lo
+                ));
                 out.push_str(&format!("n{} -> n{};\n", func, self.bdd.nodes[func].hi));
             }
         }
@@ -400,23 +406,16 @@ impl<T> BDD<T>
         out.to_string()
     }
 
-    // we use a BTreeSet instead of a HashSet since its order is stable
-    fn export_node(&self, f:BDDFunc) -> BTreeSet<BDDFunc> {
+    /// Produce an ordered set of nodes in the BDD function `f`: the transitive closure of
+    /// reachable nodes.
+    fn reachable_nodes(&self, f: BDDFunc, s: &mut BTreeSet<BDDFunc>) {
         if f != BDD_ZERO && f != BDD_ONE {
-            let mut set = BTreeSet::new();
-            set.insert(f);
-            let hi = self.export_node(self.bdd.nodes[f].hi);
-            let lo = self.export_node(self.bdd.nodes[f].lo);
-            set = set.union(&hi).cloned().collect();
-            set = set.union(&lo).cloned().collect();
-            set
-        }
-        else
-        {
-             BTreeSet::new()
+            // we use a BTreeSet instead of a HashSet since its order is stable.
+            s.insert(f);
+            self.reachable_nodes(self.bdd.nodes[f].hi, s);
+            self.reachable_nodes(self.bdd.nodes[f].lo, s);
         }
     }
-
 }
 
 /// The `BDDOutput` trait provides an interface to inform a listener about new
@@ -425,12 +424,13 @@ impl<T> BDD<T>
 /// `BDDOutput` instance may be provided to all BDD operations.
 pub trait BDDOutput<T, E> {
     fn write_label(&self, label: T, label_id: u64) -> Result<(), E>;
-    fn write_node(&self,
-                  node_id: BDDFunc,
-                  label_id: u64,
-                  lo: BDDFunc,
-                  hi: BDDFunc)
-                  -> Result<(), E>;
+    fn write_node(
+        &self,
+        node_id: BDDFunc,
+        label_id: u64,
+        lo: BDDFunc,
+        hi: BDDFunc,
+    ) -> Result<(), E>;
 }
 
 /// A `PersistedBDD` is a wrapper around a `BDD` that provides a means to write
@@ -438,7 +438,8 @@ pub trait BDDOutput<T, E> {
 /// has already been writen out, and writes out new nodes and labels as
 /// required when its `persist()` or `persist_all()` method is called.
 pub struct PersistedBDD<T>
-    where T: Clone + Debug + Eq + Ord + Hash
+where
+    T: Clone + Debug + Eq + Ord + Hash,
 {
     bdd: BDD<T>,
     next_output_func: BDDFunc,
@@ -446,7 +447,8 @@ pub struct PersistedBDD<T>
 }
 
 impl<T> PersistedBDD<T>
-    where T: Clone + Debug + Eq + Ord + Hash
+where
+    T: Clone + Debug + Eq + Ord + Hash,
 {
     /// Create a new `PersistedBDD`.
     pub fn new() -> PersistedBDD<T> {
@@ -502,13 +504,15 @@ impl<T> PersistedBDD<T>
 /// create a `BDDLoader` instance wrapped around a `BDD` and call
 /// `inject_label` and `inject_node` as appropriate to inject labels and nodes.
 pub struct BDDLoader<'a, T>
-    where T: Clone + Debug + Eq + Ord + Hash + 'a
+where
+    T: Clone + Debug + Eq + Ord + Hash + 'a,
 {
     bdd: &'a mut BDD<T>,
 }
 
 impl<'a, T> BDDLoader<'a, T>
-    where T: Clone + Debug + Eq + Ord + Hash + 'a
+where
+    T: Clone + Debug + Eq + Ord + Hash + 'a,
 {
     /// Create a new `BDDLoader` wrapping the given `bdd`. The `BDDLoader`
     /// holds a mutable reference to `bdd` until destroyed. `bdd` must be empty
@@ -559,11 +563,13 @@ mod test {
         }
     }
 
-    fn test_bdd(b: &BDD<u32>,
-                f: BDDFunc,
-                h: &mut HashMap<u32, bool>,
-                inputs: &[bool],
-                expected: bool) {
+    fn test_bdd(
+        b: &BDD<u32>,
+        f: BDDFunc,
+        h: &mut HashMap<u32, bool>,
+        inputs: &[bool],
+        expected: bool,
+    ) {
         term_hashmap(inputs, h);
         assert!(b.evaluate(f, h) == expected);
     }
@@ -572,8 +578,10 @@ mod test {
     fn bdd_eval() {
         let mut h = HashMap::new();
         let mut b = BDD::new();
-        let expr = Expr::or(Expr::and(Expr::Terminal(0), Expr::Terminal(1)),
-                            Expr::and(Expr::not(Expr::Terminal(2)), Expr::not(Expr::Terminal(3))));
+        let expr = Expr::or(
+            Expr::and(Expr::Terminal(0), Expr::Terminal(1)),
+            Expr::and(Expr::not(Expr::Terminal(2)), Expr::not(Expr::Terminal(3))),
+        );
         let f = b.from_expr(&expr);
         test_bdd(&b, f, &mut h, &[false, false, true, true], false);
         test_bdd(&b, f, &mut h, &[true, false, true, true], false);
@@ -605,14 +613,14 @@ mod test {
             0 => Expr::Terminal(r.gen_range(0, nterminals) as u32),
             1 => Expr::Const(r.gen_weighted_bool(2)),
             2 => Expr::Not(Box::new(random_expr(r, nterminals))),
-            3 => {
-                Expr::And(Box::new(random_expr(r, nterminals)),
-                          Box::new(random_expr(r, nterminals)))
-            }
-            4 => {
-                Expr::Or(Box::new(random_expr(r, nterminals)),
-                         Box::new(random_expr(r, nterminals)))
-            }
+            3 => Expr::And(
+                Box::new(random_expr(r, nterminals)),
+                Box::new(random_expr(r, nterminals)),
+            ),
+            4 => Expr::Or(
+                Box::new(random_expr(r, nterminals)),
+                Box::new(random_expr(r, nterminals)),
+            ),
             _ => unreachable!(),
         }
     }
@@ -644,9 +652,13 @@ mod test {
         let f_2 = b.terminal(2);
         let f_1_or_2 = b.or(f_1, f_2);
         let f_0_and_1_or_2 = b.and(f_0, f_1_or_2);
-        assert!(b.to_expr(f_0_and_1_or_2) ==
-                Expr::or(Expr::and(Expr::Terminal(0), Expr::Terminal(2)),
-                         Expr::and(Expr::Terminal(0), Expr::Terminal(1))));
+        assert!(
+            b.to_expr(f_0_and_1_or_2)
+                == Expr::or(
+                    Expr::and(Expr::Terminal(0), Expr::Terminal(2)),
+                    Expr::and(Expr::Terminal(0), Expr::Terminal(1))
+                )
+        );
     }
 
     #[derive(Clone, Debug)]
@@ -671,12 +683,13 @@ mod test {
             Ok(())
         }
 
-        fn write_node(&self,
-                      node_id: BDDFunc,
-                      label_id: u64,
-                      lo: BDDFunc,
-                      hi: BDDFunc)
-                      -> Result<(), ()> {
+        fn write_node(
+            &self,
+            node_id: BDDFunc,
+            label_id: u64,
+            lo: BDDFunc,
+            hi: BDDFunc,
+        ) -> Result<(), ()> {
             let mut nodes = self.nodes.borrow_mut();
             nodes.push((node_id, label_id, lo, hi));
             Ok(())
@@ -689,10 +702,13 @@ mod test {
         let mut bdd = BDD::new();
         let a = bdd.terminal("a");
         let b = bdd.terminal("b");
-        let b_and_a = bdd.and(a,b);
+        let b_and_a = bdd.and(a, b);
         {
-            let dot = bdd.export_bdd_to_dot(b_and_a);
-            assert_eq!(dot, indoc!("
+            let dot = bdd.to_dot(b_and_a);
+            assert_eq!(
+                dot,
+                indoc!(
+                    "
                             digraph bdd {
                             n1 [label = \"b\"];
                             n1 -> n18446744073709551615 [style=dotted];
@@ -702,13 +718,18 @@ mod test {
                             n2 -> n1;
                             n18446744073709551615 [label=\"0\"];
                             n18446744073709551614 [label=\"1\"];
-                            }"));
+                            }"
+                )
+            );
         }
         let c = bdd.terminal("c");
         let c_or_a = bdd.or(c, a);
         {
-            let dot = bdd.export_bdd_to_dot(c_or_a);
-            assert_eq!(dot, indoc!("
+            let dot = bdd.to_dot(c_or_a);
+            assert_eq!(
+                dot,
+                indoc!(
+                    "
                             digraph bdd {
                             n3 [label = \"c\"];
                             n3 -> n18446744073709551615 [style=dotted];
@@ -718,13 +739,18 @@ mod test {
                             n4 -> n18446744073709551614;
                             n18446744073709551615 [label=\"0\"];
                             n18446744073709551614 [label=\"1\"];
-                            }"));
+                            }"
+                )
+            );
         }
         let not_c_and_b = bdd.not(b_and_a);
         let c_or_a_and_not_b_and_a = bdd.and(c_or_a, not_c_and_b);
         {
-            let dot = bdd.export_bdd_to_dot(c_or_a_and_not_b_and_a);
-            assert_eq!(dot, indoc!("
+            let dot = bdd.to_dot(c_or_a_and_not_b_and_a);
+            assert_eq!(
+                dot,
+                indoc!(
+                    "
                             digraph bdd {
                             n3 [label = \"c\"];
                             n3 -> n18446744073709551615 [style=dotted];
@@ -737,15 +763,19 @@ mod test {
                             n7 -> n5;
                             n18446744073709551615 [label=\"0\"];
                             n18446744073709551614 [label=\"1\"];
-                            }"));
+                            }"
+                )
+            );
         }
         {
             let new_a = bdd.terminal("a");
             let d = bdd.terminal("d");
             let new_a_or_d = bdd.or(new_a, d);
-            let dot = bdd.export_bdd_to_dot(new_a_or_d);
-            println!("{}", dot);
-            assert_eq!(dot, indoc!("
+            let dot = bdd.to_dot(new_a_or_d);
+            assert_eq!(
+                dot,
+                indoc!(
+                    "
                             digraph bdd {
                             n8 [label = \"d\"];
                             n8 -> n18446744073709551615 [style=dotted];
@@ -755,10 +785,11 @@ mod test {
                             n9 -> n18446744073709551614;
                             n18446744073709551615 [label=\"0\"];
                             n18446744073709551614 [label=\"1\"];
-                            }"));
+                            }"
+                )
+            );
         }
     }
-
 
     #[test]
     fn persist_bdd() {
@@ -770,15 +801,25 @@ mod test {
         let ab = p.bdd_mut().and(term_a, term_b);
         let ab_or_c = p.bdd_mut().or(ab, term_c);
         p.persist(ab_or_c, &out).unwrap();
-        assert!(*out.labels.borrow() ==
-                vec![(0, "A".to_owned()), (1, "B".to_owned()), (2, "C".to_owned())]);
-        assert!(*out.nodes.borrow() ==
-                vec![(0, 0, BDD_ZERO, BDD_ONE),
-                     (1, 1, BDD_ZERO, BDD_ONE),
-                     (2, 2, BDD_ZERO, BDD_ONE),
-                     (3, 0, BDD_ZERO, 1),
-                     (4, 1, 2, BDD_ONE),
-                     (5, 0, 2, 4)]);
+        assert!(
+            *out.labels.borrow()
+                == vec![
+                    (0, "A".to_owned()),
+                    (1, "B".to_owned()),
+                    (2, "C".to_owned()),
+                ]
+        );
+        assert!(
+            *out.nodes.borrow()
+                == vec![
+                    (0, 0, BDD_ZERO, BDD_ONE),
+                    (1, 1, BDD_ZERO, BDD_ONE),
+                    (2, 2, BDD_ZERO, BDD_ONE),
+                    (3, 0, BDD_ZERO, 1),
+                    (4, 1, 2, BDD_ONE),
+                    (5, 0, 2, 4),
+                ]
+        );
     }
 
     #[test]

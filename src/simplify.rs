@@ -17,7 +17,8 @@ struct SimplifyContext<T> {
 }
 
 impl<T> SimplifyContext<T>
-    where T: Clone + Debug + Eq + Ord + Hash
+where
+    T: Clone + Debug + Eq + Ord + Hash,
 {
     pub fn new() -> SimplifyContext<T> {
         SimplifyContext {
@@ -37,14 +38,14 @@ impl<T> SimplifyContext<T>
                     (Expr::Const(true), a) => self.step(a),
                     (_, Expr::Const(false)) => Expr::Const(false),
                     (a, Expr::Const(true)) => self.step(a),
-                    (Expr::Or(a, b), c) => {
-                        Expr::Or(Box::new(self.step(Expr::And(a, Box::new(c.clone())))),
-                                 Box::new(self.step(Expr::And(b, Box::new(c)))))
-                    }
-                    (c, Expr::Or(a, b)) => {
-                        Expr::Or(Box::new(self.step(Expr::And(Box::new(c.clone()), a))),
-                                 Box::new(self.step(Expr::And(Box::new(c), b))))
-                    }
+                    (Expr::Or(a, b), c) => Expr::Or(
+                        Box::new(self.step(Expr::And(a, Box::new(c.clone())))),
+                        Box::new(self.step(Expr::And(b, Box::new(c)))),
+                    ),
+                    (c, Expr::Or(a, b)) => Expr::Or(
+                        Box::new(self.step(Expr::And(Box::new(c.clone()), a))),
+                        Box::new(self.step(Expr::And(Box::new(c), b))),
+                    ),
                     (x, y) => {
                         if x == y {
                             self.step(x)
@@ -79,14 +80,14 @@ impl<T> SimplifyContext<T>
                 match x {
                     Expr::Const(false) => Expr::Const(true),
                     Expr::Const(true) => Expr::Const(false),
-                    Expr::And(a, b) => {
-                        Expr::Or(Box::new(self.step(Expr::Not(a))),
-                                 Box::new(self.step(Expr::Not(b))))
-                    }
-                    Expr::Or(a, b) => {
-                        Expr::And(Box::new(self.step(Expr::Not(a))),
-                                  Box::new(self.step(Expr::Not(b))))
-                    }
+                    Expr::And(a, b) => Expr::Or(
+                        Box::new(self.step(Expr::Not(a))),
+                        Box::new(self.step(Expr::Not(b))),
+                    ),
+                    Expr::Or(a, b) => Expr::And(
+                        Box::new(self.step(Expr::Not(a))),
+                        Box::new(self.step(Expr::Not(b))),
+                    ),
                     Expr::Not(a) => self.step(*a),
                     x => {
                         changed = false;
@@ -105,7 +106,8 @@ impl<T> SimplifyContext<T>
 }
 
 pub fn simplify_via_laws<T>(e: Expr<T>) -> Expr<T>
-    where T: Clone + Debug + Eq + Ord + Hash
+where
+    T: Clone + Debug + Eq + Ord + Hash,
 {
     let mut ctx = SimplifyContext::new();
     let mut e = e;
@@ -121,7 +123,8 @@ pub fn simplify_via_laws<T>(e: Expr<T>) -> Expr<T>
 // This expression simplification path is tested via the tests for
 // `BDD::from_expr` and `BDD::to_expr`, so we don't replicate those tests here.
 pub fn simplify_via_bdd<T>(e: Expr<T>) -> Expr<T>
-    where T: Clone + Debug + Eq + Ord + Hash
+where
+    T: Clone + Debug + Eq + Ord + Hash,
 {
     let mut bdd = BDD::new();
     let f = bdd.from_expr(&e);
@@ -135,47 +138,66 @@ mod test {
     use std::hash::Hash;
 
     fn run_test<T>(orig: Expr<T>, expected: Expr<T>)
-        where T: Clone + Debug + Eq + Ord + Hash
+    where
+        T: Clone + Debug + Eq + Ord + Hash,
     {
         let output = simplify_via_laws(orig.clone());
-        println!("Simplify: {:?} -> {:?} (expected {:?})",
-                 orig,
-                 output,
-                 expected);
+        println!(
+            "Simplify: {:?} -> {:?} (expected {:?})",
+            orig, output, expected
+        );
         assert!(output == expected);
     }
 
     #[test]
     fn distributive_law() {
-        run_test(Expr::and(Expr::or(Expr::Terminal(1), Expr::Terminal(2)),
-                           Expr::or(Expr::Terminal(3), Expr::Terminal(4))),
-                 Expr::or(Expr::or(Expr::and(Expr::Terminal(1), Expr::Terminal(3)),
-                                   Expr::and(Expr::Terminal(1), Expr::Terminal(4))),
-                          Expr::or(Expr::and(Expr::Terminal(2), Expr::Terminal(3)),
-                                   Expr::and(Expr::Terminal(2), Expr::Terminal(4)))));
+        run_test(
+            Expr::and(
+                Expr::or(Expr::Terminal(1), Expr::Terminal(2)),
+                Expr::or(Expr::Terminal(3), Expr::Terminal(4)),
+            ),
+            Expr::or(
+                Expr::or(
+                    Expr::and(Expr::Terminal(1), Expr::Terminal(3)),
+                    Expr::and(Expr::Terminal(1), Expr::Terminal(4)),
+                ),
+                Expr::or(
+                    Expr::and(Expr::Terminal(2), Expr::Terminal(3)),
+                    Expr::and(Expr::Terminal(2), Expr::Terminal(4)),
+                ),
+            ),
+        );
     }
 
     #[test]
     fn demorgan_and() {
-        run_test(Expr::not(Expr::or(Expr::Terminal(1), Expr::Terminal(2))),
-                 Expr::and(Expr::not(Expr::Terminal(1)), Expr::not(Expr::Terminal(2))));
+        run_test(
+            Expr::not(Expr::or(Expr::Terminal(1), Expr::Terminal(2))),
+            Expr::and(Expr::not(Expr::Terminal(1)), Expr::not(Expr::Terminal(2))),
+        );
     }
 
     #[test]
     fn demorgan_or() {
-        run_test(Expr::not(Expr::or(Expr::Terminal(1), Expr::Terminal(2))),
-                 Expr::and(Expr::not(Expr::Terminal(1)), Expr::not(Expr::Terminal(2))));
+        run_test(
+            Expr::not(Expr::or(Expr::Terminal(1), Expr::Terminal(2))),
+            Expr::and(Expr::not(Expr::Terminal(1)), Expr::not(Expr::Terminal(2))),
+        );
     }
 
     #[test]
     fn shortcircuit_and() {
-        run_test(Expr::and(Expr::Const(false), Expr::Terminal(1)),
-                 Expr::Const(false));
+        run_test(
+            Expr::and(Expr::Const(false), Expr::Terminal(1)),
+            Expr::Const(false),
+        );
     }
 
     #[test]
     fn shortcircuit_or() {
-        run_test(Expr::or(Expr::Const(true), Expr::Terminal(1)),
-                 Expr::Const(true));
+        run_test(
+            Expr::or(Expr::Const(true), Expr::Terminal(1)),
+            Expr::Const(true),
+        );
     }
 }
