@@ -411,9 +411,10 @@ where
     fn reachable_nodes(&self, f: BDDFunc, s: &mut BTreeSet<BDDFunc>) {
         if f != BDD_ZERO && f != BDD_ONE {
             // we use a BTreeSet instead of a HashSet since its order is stable.
-            s.insert(f);
-            self.reachable_nodes(self.bdd.nodes[f].hi, s);
-            self.reachable_nodes(self.bdd.nodes[f].lo, s);
+            if s.insert(f) {
+                self.reachable_nodes(self.bdd.nodes[f].hi, s);
+                self.reachable_nodes(self.bdd.nodes[f].lo, s);
+            }
         }
     }
 }
