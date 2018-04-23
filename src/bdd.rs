@@ -5,7 +5,6 @@
 //
 
 use std::collections::{BTreeSet, HashMap, HashSet};
-use std::vec::Vec;
 use std::collections::hash_map::Entry as HashEntry;
 use std::cmp;
 use std::fmt::Debug;
@@ -369,11 +368,25 @@ where
         self.bdd.evaluate(f, &valarray).unwrap()
     }
 
-    /// Compute an assignment for terminals which satisfies 'f'.
-    /// This function adds the assignments (true, false) for terminals to the HashMap unless a terminal's assignment does not matter for satisfiability.
-    /// If the function returns false, 'f' is not satisfiable.
-    /// Example: for the boolean function "a or b", this function could return one of the following two hash sets: {"a" -> true} or {"b" -> true}.
-    pub fn sat_one(&self, f: BDDFunc, assignments: &mut HashMap<T, bool>) -> bool {
+    /// Compute an assignment for terminals which satisfies 'f'.  If
+    /// satisfiable, this function returns a HashMap with the
+    /// assignments (true, false) for terminals unless a terminal's
+    /// assignment does not matter for satisfiability. If 'f' is not
+    /// satisfiable, returns None.
+    ///
+    /// Example: for the boolean function "a or b", this function
+    /// could return one of the following two HashMaps: {"a" -> true}
+    /// or {"b" -> true}.
+    pub fn sat_one(&self, f: BDDFunc) -> Option<HashMap<T, bool>> {
+        let mut h = HashMap::new();
+        if self.sat_one_internal(f, &mut h) {
+            Some(h)
+        } else {
+            None
+        }
+    }
+
+    fn sat_one_internal(&self, f: BDDFunc, assignments: &mut HashMap<T, bool>) -> bool {
         match f {
             BDD_ZERO => false,
             BDD_ONE => true,
@@ -382,10 +395,10 @@ where
                 let lo = self.bdd.nodes[f].lo;
                 if hi != BDD_ZERO {
                     assignments.insert(self.rev_labels[self.bdd.nodes[f].label].clone(), true);
-                    self.sat_one(hi, assignments);
+                    self.sat_one_internal(hi, assignments);
                 } else {
                     assignments.insert(self.rev_labels[self.bdd.nodes[f].label].clone(), false);
-                    self.sat_one(lo, assignments);
+                    self.sat_one_internal(lo, assignments);
                 }
                 true
             }
@@ -625,17 +638,21 @@ mod test {
         let mut b = BDD::new();
         let f = b.from_expr(&e);
         let mut terminal_values = HashMap::new();
+        let mut expected_satisfiable = false;
         for v in 0..(1 << nterminals) {
             bits_to_hashmap(nterminals, v, &mut terminal_values);
             let expr_val = e.evaluate(&terminal_values);
             let bdd_val = b.evaluate(f, &terminal_values);
             assert!(expr_val == bdd_val);
+            if expr_val {
+                expected_satisfiable = true;
+            }
         }
         // test sat_one
-        terminal_values.clear();
-        let satisfiable = b.sat_one(f, &mut terminal_values);
-        if satisfiable {
-            assert!(b.evaluate(f, &terminal_values));
+        let sat_result = b.sat_one(f);
+        assert!(sat_result.is_some() == expected_satisfiable);
+        if expected_satisfiable {
+            assert!(b.evaluate(f, &sat_result.unwrap()));
         }
     }
 
@@ -825,29 +842,28 @@ mod test {
     #[test]
     fn sat_one() {
         let mut bdd = BDD::new();
-        let mut assignments = HashMap::new();
 
         // empty bdds
-        assert!(bdd.sat_one(BDD_ONE, &mut assignments));
-        assert!(!bdd.sat_one(BDD_ZERO, &mut assignments));
+        assert!(bdd.sat_one(BDD_ONE).is_some());
+        assert!(bdd.sat_one(BDD_ZERO).is_none());
 
         let a = bdd.terminal("a");
         let b = bdd.terminal("b");
         let b_and_a = bdd.and(a, b);
-        assert!(bdd.sat_one(b_and_a, &mut assignments));
-        assert!(bdd.evaluate(b_and_a, &assignments));
+        let result = bdd.sat_one(b_and_a);
+        assert!(result.is_some());
+        assert!(bdd.evaluate(b_and_a, &result.unwrap()));
 
-        assignments.clear();
         let c = bdd.terminal("c");
         let not_c = bdd.not(c);
         let b_and_a_or_not_c = bdd.or(b_and_a, not_c);
-        assert!(bdd.sat_one(b_and_a_or_not_c, &mut assignments));
-        assert!(bdd.evaluate(b_and_a_or_not_c, &assignments));
+        let result = bdd.sat_one(b_and_a_or_not_c);
+        assert!(result.is_some());
+        assert!(bdd.evaluate(b_and_a_or_not_c, &result.unwrap()));
 
         // unsatisfiable formula
-        assignments.clear();
         let c_and_not_c = bdd.and(c, not_c);
-        assert!(!bdd.sat_one(c_and_not_c, &mut assignments));
+        assert!(bdd.sat_one(c_and_not_c).is_none());
     }
 
     #[test]
