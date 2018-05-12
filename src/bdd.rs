@@ -156,6 +156,11 @@ impl LabelBDD {
         self.ite(a, BDD_ONE, b)
     }
 
+    pub fn implies(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
+        let not_a = self.not(a);
+        self.or(not_a, b)
+    }
+
     pub fn evaluate(&self, func: BDDFunc, inputs: &[bool]) -> Option<bool> {
         let mut f = func;
         for (i, val) in inputs.iter().enumerate() {
@@ -332,6 +337,25 @@ where
     pub fn or(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
         self.bdd.or(a, b)
     }
+
+    /// Produce a function within the BDD representing the logical implication 'a' -> 'b'
+    pub fn implies(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
+        self.bdd.implies(a, b)
+    }
+
+    /// checks whether the function 'f' within the BDD is satisfiable
+    pub fn sat(&self, f:BDDFunc) -> bool {
+        match f {
+            BDD_ZERO => false,
+            _        => true
+        }
+    } 
+
+    /// returns a new function based on `f` but with the
+    /// given label forced to the given value
+    pub fn restrict(&mut self, f: BDDFunc, t: T, val: bool) -> BDDFunc {
+        self.bdd.restrict(f, self.labels[&t], val)
+    } 
 
     /// Produce a function within the BDD representing the given expression
     /// `e`, which may contain ANDs, ORs, NOTs, terminals, and constants.
