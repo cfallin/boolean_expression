@@ -9,6 +9,7 @@
 
     <title>boolean_expression::BDD - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
     
@@ -16,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,8 +28,9 @@
     
 
     <nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
-        <p class='location'><a href='index.html'>boolean_expression</a></p><script>window.sidebarCurrent = {name: 'BDD', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct BDD</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.new">new</a><a href="#method.terminal">terminal</a><a href="#method.constant">constant</a><a href="#method.not">not</a><a href="#method.and">and</a><a href="#method.or">or</a><a href="#method.implies">implies</a><a href="#method.sat">sat</a><a href="#method.restrict">restrict</a><a href="#method.from_expr">from_expr</a><a href="#method.evaluate">evaluate</a><a href="#method.sat_one">sat_one</a><a href="#method.to_expr">to_expr</a><a href="#method.to_dot">to_dot</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Clone">Clone</a><a href="#impl-Debug">Debug</a></div></div><p class='location'><a href='index.html'>boolean_expression</a></p><script>window.sidebarCurrent = {name: 'BDD', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script></div>
     </nav>
 
     <nav class="sub">
@@ -42,15 +44,13 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>boolean_expression</a>::<wbr><a class='struct' href=''>BDD</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>boolean_expression</a>::<wbr><a class="struct" href=''>BDD</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-487' class='srclink' href='../src/boolean_expression/src/bdd.rs.html#271-278' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct BDD&lt;T&gt; <span class='where'>where T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html' title='core::cmp::Ord'>Ord</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a></span> {
-    // some fields omitted
-}</pre><div class='docblock'><p>A <code>BDD</code> is a Binary Decision Diagram, an efficient way to represent a
+               </span><a class='srclink' href='../src/boolean_expression/bdd.rs.html#276-283' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct BDD&lt;T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html" title="trait core::cmp::Ord">Ord</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a>,&nbsp;</span> { /* fields omitted */ }</pre><div class='docblock'><p>A <code>BDD</code> is a Binary Decision Diagram, an efficient way to represent a
 Boolean function in a canonical way. (It is actually a &quot;Reduced Ordered
 Binary Decision Diagram&quot;, which gives it its canonicity assuming terminals
 are ordered consistently.)</p>
@@ -67,38 +67,67 @@ expressions are produced within the same BDD and they both result in
 tradeoff is that logical operations may be expensive: they are linear in
 BDD size, but BDDs may have exponential size (relative to terminal count)
 in the worst case.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl&lt;T&gt; <a class='struct' href='../boolean_expression/struct.BDD.html' title='boolean_expression::BDD'>BDD</a>&lt;T&gt; <span class='where'>where T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html' title='core::cmp::Ord'>Ord</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a></span></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-511' class='srclink' href='../src/boolean_expression/src/bdd.rs.html#280-378' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../boolean_expression/struct.BDD.html' title='boolean_expression::BDD'>BDD</a>&lt;T&gt;</code></h4>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl&lt;T&gt; <a class="struct" href="../boolean_expression/struct.BDD.html" title="struct boolean_expression::BDD">BDD</a>&lt;T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html" title="trait core::cmp::Ord">Ord</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a>,&nbsp;</span></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#285-480' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>pub fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class="struct" href="../boolean_expression/struct.BDD.html" title="struct boolean_expression::BDD">BDD</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#290-296' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Produce a new, empty, BDD.</p>
-</div><h4 id='method.terminal' class='method'><code>fn <a href='#method.terminal' class='fnname'>terminal</a>(&amp;mut self, t: T) -&gt; <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a></code></h4>
+</div><h4 id='method.terminal' class="method"><span id='terminal.v' class='invisible'><code>pub fn <a href='#method.terminal' class='fnname'>terminal</a>(&amp;mut self, t: T) -&gt; <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#313-316' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Produce a function within the BDD representing the terminal <code>t</code>. If
 this terminal has been used in the BDD before, the same <code>BDDFunc</code> will be
 returned.</p>
-</div><h4 id='method.constant' class='method'><code>fn <a href='#method.constant' class='fnname'>constant</a>(&amp;mut self, val: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a></code></h4>
+</div><h4 id='method.constant' class="method"><span id='constant.v' class='invisible'><code>pub fn <a href='#method.constant' class='fnname'>constant</a>(&amp;mut self, val: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) -&gt; <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#319-321' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Produce a function within the BDD representing the constant value <code>val</code>.</p>
-</div><h4 id='method.not' class='method'><code>fn <a href='#method.not' class='fnname'>not</a>(&amp;mut self, n: <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a>) -&gt; <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a></code></h4>
+</div><h4 id='method.not' class="method"><span id='not.v' class='invisible'><code>pub fn <a href='#method.not' class='fnname'>not</a>(&amp;mut self, n: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>) -&gt; <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#325-327' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Produce a function within the BDD representing the logical complement
 of the function <code>n</code>.</p>
-</div><h4 id='method.and' class='method'><code>fn <a href='#method.and' class='fnname'>and</a>(&amp;mut self, a: <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a>, b: <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a>) -&gt; <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a></code></h4>
+</div><h4 id='method.and' class="method"><span id='and.v' class='invisible'><code>pub fn <a href='#method.and' class='fnname'>and</a>(&amp;mut self, a: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>, b: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>) -&gt; <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#331-333' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Produce a function within the BDD representing the logical AND of the
 functions <code>a</code> and <code>b</code>.</p>
-</div><h4 id='method.or' class='method'><code>fn <a href='#method.or' class='fnname'>or</a>(&amp;mut self, a: <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a>, b: <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a>) -&gt; <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a></code></h4>
+</div><h4 id='method.or' class="method"><span id='or.v' class='invisible'><code>pub fn <a href='#method.or' class='fnname'>or</a>(&amp;mut self, a: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>, b: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>) -&gt; <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#337-339' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Produce a function within the BDD representing the logical OR of the
 functions <code>a</code> and <code>b</code>.</p>
-</div><h4 id='method.from_expr' class='method'><code>fn <a href='#method.from_expr' class='fnname'>from_expr</a>(&amp;mut self, e: &amp;<a class='enum' href='../boolean_expression/enum.Expr.html' title='boolean_expression::Expr'>Expr</a>&lt;T&gt;) -&gt; <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a></code></h4>
+</div><h4 id='method.implies' class="method"><span id='implies.v' class='invisible'><code>pub fn <a href='#method.implies' class='fnname'>implies</a>(&amp;mut self, a: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>, b: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>) -&gt; <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#342-344' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Produce a function within the BDD representing the logical implication <code>a</code> -&gt; <code>b</code>.</p>
+</div><h4 id='method.sat' class="method"><span id='sat.v' class='invisible'><code>pub fn <a href='#method.sat' class='fnname'>sat</a>(&amp;self, f: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#347-352' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Check whether the function <code>f</code> within the BDD is satisfiable.</p>
+</div><h4 id='method.restrict' class="method"><span id='restrict.v' class='invisible'><code>pub fn <a href='#method.restrict' class='fnname'>restrict</a>(&amp;mut self, f: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>, t: T, val: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>) -&gt; <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#355-357' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Return a new function based on <code>f</code> but with the given label forced to the given value.</p>
+</div><h4 id='method.from_expr' class="method"><span id='from_expr.v' class='invisible'><code>pub fn <a href='#method.from_expr' class='fnname'>from_expr</a>(&amp;mut self, e: &amp;<a class="enum" href="../boolean_expression/enum.Expr.html" title="enum boolean_expression::Expr">Expr</a>&lt;T&gt;) -&gt; <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#361-380' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Produce a function within the BDD representing the given expression
 <code>e</code>, which may contain ANDs, ORs, NOTs, terminals, and constants.</p>
-</div><h4 id='method.evaluate' class='method'><code>fn <a href='#method.evaluate' class='fnname'>evaluate</a>(&amp;self, f: <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a>, values: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;T, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h4 id='method.evaluate' class="method"><span id='evaluate.v' class='invisible'><code>pub fn <a href='#method.evaluate' class='fnname'>evaluate</a>(&amp;self, f: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>, values: &amp;<a class="struct" href="https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html" title="struct std::collections::hash::map::HashMap">HashMap</a>&lt;T, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#384-392' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Evaluate the function <code>f</code> in the BDD with the given terminal
 assignments. Any terminals not specified in <code>values</code> default to <code>false</code>.</p>
-</div><h4 id='method.to_expr' class='method'><code>fn <a href='#method.to_expr' class='fnname'>to_expr</a>(&amp;self, f: <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a>) -&gt; <a class='enum' href='../boolean_expression/enum.Expr.html' title='boolean_expression::Expr'>Expr</a>&lt;T&gt;</code></h4>
+</div><h4 id='method.sat_one' class="method"><span id='sat_one.v' class='invisible'><code>pub fn <a href='#method.sat_one' class='fnname'>sat_one</a>(&amp;self, f: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html" title="struct std::collections::hash::map::HashMap">HashMap</a>&lt;T, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>&gt;&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#403-410' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Compute an assignment for terminals which satisfies &#39;f&#39;.  If
+satisfiable, this function returns a HashMap with the
+assignments (true, false) for terminals unless a terminal&#39;s
+assignment does not matter for satisfiability. If &#39;f&#39; is not
+satisfiable, returns None.</p>
+
+<p>Example: for the boolean function &quot;a or b&quot;, this function
+could return one of the following two HashMaps: {&quot;a&quot; -&gt; true}
+or {&quot;b&quot; -&gt; true}.</p>
+</div><h4 id='method.to_expr' class="method"><span id='to_expr.v' class='invisible'><code>pub fn <a href='#method.to_expr' class='fnname'>to_expr</a>(&amp;self, f: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>) -&gt; <a class="enum" href="../boolean_expression/enum.Expr.html" title="enum boolean_expression::Expr">Expr</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#432-436' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Convert the BDD to a minimized sum-of-products expression.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><span class='in-band'><code>impl&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../boolean_expression/struct.BDD.html' title='boolean_expression::BDD'>BDD</a>&lt;T&gt; <span class='where'>where T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html' title='core::cmp::Ord'>Ord</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a></span></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-493' class='srclink' href='../src/boolean_expression/src/bdd.rs.html#270' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div><h3 class='impl'><span class='in-band'><code>impl&lt;T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../boolean_expression/struct.BDD.html' title='boolean_expression::BDD'>BDD</a>&lt;T&gt; <span class='where'>where T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html' title='core::cmp::Ord'>Ord</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a></span></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-503' class='srclink' href='../src/boolean_expression/src/bdd.rs.html#270' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../boolean_expression/struct.BDD.html' title='boolean_expression::BDD'>BDD</a>&lt;T&gt;</code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class="since">1.0.0</div></h4>
-</div></section>
+</div><h4 id='method.to_dot' class="method"><span id='to_dot.v' class='invisible'><code>pub fn <a href='#method.to_dot' class='fnname'>to_dot</a>(&amp;self, f: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>) -&gt; <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#439-467' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Export BDD to <code>dot</code> format (from the graphviz package) to enable visualization.</p>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl&lt;T:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../boolean_expression/struct.BDD.html" title="struct boolean_expression::BDD">BDD</a>&lt;T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html" title="trait core::cmp::Ord">Ord</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a>,&nbsp;</span></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#275' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../boolean_expression/struct.BDD.html" title="struct boolean_expression::BDD">BDD</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#275' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl&lt;T:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a>&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../boolean_expression/struct.BDD.html" title="struct boolean_expression::BDD">BDD</a>&lt;T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html" title="trait core::cmp::Ord">Ord</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a>,&nbsp;</span></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#275' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#275' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -115,12 +144,16 @@ assignments. Any terminals not specified in <code>values</code> default to <code
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -152,11 +185,8 @@ assignments. Any terminals not specified in <code>values</code> default to <code
     <script>
         window.rootPath = "../";
         window.currentCrate = "boolean_expression";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

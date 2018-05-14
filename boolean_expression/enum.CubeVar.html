@@ -9,6 +9,7 @@
 
     <title>boolean_expression::CubeVar - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
     
@@ -16,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc enum">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,8 +28,9 @@
     
 
     <nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
-        <p class='location'><a href='index.html'>boolean_expression</a></p><script>window.sidebarCurrent = {name: 'CubeVar', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Enum CubeVar</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.False">False</a><a href="#variant.True">True</a><a href="#variant.DontCare">DontCare</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Clone">Clone</a><a href="#impl-Debug">Debug</a><a href="#impl-PartialEq">PartialEq</a><a href="#impl-Eq">Eq</a><a href="#impl-PartialOrd">PartialOrd</a><a href="#impl-Ord">Ord</a></div></div><p class='location'><a href='index.html'>boolean_expression</a></p><script>window.sidebarCurrent = {name: 'CubeVar', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script></div>
     </nav>
 
     <nav class="sub">
@@ -42,39 +44,59 @@
         </form>
     </nav>
 
-    <section id='main' class="content enum">
-<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>boolean_expression</a>::<wbr><a class='enum' href=''>CubeVar</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>boolean_expression</a>::<wbr><a class="enum" href=''>CubeVar</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-685' class='srclink' href='../src/boolean_expression/src/cubes.rs.html#15-22' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../src/boolean_expression/cubes.rs.html#15-22' title='goto source code'>[src]</a></span></h1>
 <pre class='rust enum'>pub enum CubeVar {
     False,
     True,
     DontCare,
 }</pre><div class='docblock'><p>A variable assignment in a cube.</p>
-</div><h2 class='variants'>Variants</h2>
-<table class='variants_table'><tr><td id='variant.False'><code>False</code></td><td><div class='docblock'><p>This variable must be false.</p>
-</div></td><td></td></tr><tr><td id='variant.True'><code>True</code></td><td><div class='docblock'><p>This variable must be true.</p>
-</div></td><td></td></tr><tr><td id='variant.DontCare'><code>DontCare</code></td><td><div class='docblock'><p>This variable may be true or false.</p>
-</div></td><td></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html' title='core::cmp::Ord'>Ord</a> for <a class='enum' href='../boolean_expression/enum.CubeVar.html' title='boolean_expression::CubeVar'>CubeVar</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-689' class='srclink' href='../src/boolean_expression/src/cubes.rs.html#14' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.cmp' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html#tymethod.cmp' class='fnname'>cmp</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../boolean_expression/enum.CubeVar.html' title='boolean_expression::CubeVar'>CubeVar</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/cmp/enum.Ordering.html' title='core::cmp::Ordering'>Ordering</a></code></h4>
-</div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html' title='core::cmp::PartialOrd'>PartialOrd</a> for <a class='enum' href='../boolean_expression/enum.CubeVar.html' title='boolean_expression::CubeVar'>CubeVar</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-695' class='srclink' href='../src/boolean_expression/src/cubes.rs.html#14' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.partial_cmp' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#tymethod.partial_cmp' class='fnname'>partial_cmp</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../boolean_expression/enum.CubeVar.html' title='boolean_expression::CubeVar'>CubeVar</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='https://doc.rust-lang.org/nightly/core/cmp/enum.Ordering.html' title='core::cmp::Ordering'>Ordering</a>&gt;</code></h4>
-<h4 id='method.lt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.lt' class='fnname'>lt</a>(&amp;self, other: &amp;Rhs) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code><div class="since">1.0.0</div></h4>
-<h4 id='method.le' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.le' class='fnname'>le</a>(&amp;self, other: &amp;Rhs) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code><div class="since">1.0.0</div></h4>
-<h4 id='method.gt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.gt' class='fnname'>gt</a>(&amp;self, other: &amp;Rhs) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code><div class="since">1.0.0</div></h4>
-<h4 id='method.ge' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.ge' class='fnname'>ge</a>(&amp;self, other: &amp;Rhs) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code><div class="since">1.0.0</div></h4>
-</div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='enum' href='../boolean_expression/enum.CubeVar.html' title='boolean_expression::CubeVar'>CubeVar</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-701' class='srclink' href='../src/boolean_expression/src/cubes.rs.html#14' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='enum' href='../boolean_expression/enum.CubeVar.html' title='boolean_expression::CubeVar'>CubeVar</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-704' class='srclink' href='../src/boolean_expression/src/cubes.rs.html#14' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../boolean_expression/enum.CubeVar.html' title='boolean_expression::CubeVar'>CubeVar</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: &amp;Rhs) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code><div class="since">1.0.0</div></h4>
-</div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../boolean_expression/enum.CubeVar.html' title='boolean_expression::CubeVar'>CubeVar</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-710' class='srclink' href='../src/boolean_expression/src/cubes.rs.html#14' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../boolean_expression/enum.CubeVar.html' title='boolean_expression::CubeVar'>CubeVar</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-717' class='srclink' href='../src/boolean_expression/src/cubes.rs.html#14' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../boolean_expression/enum.CubeVar.html' title='boolean_expression::CubeVar'>CubeVar</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class="since">1.0.0</div></h4>
-</div></section>
+</div><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.False" class="variant small-section-header"><a href="#variant.False" class="anchor field"></a><span id='False.v' class='invisible'><code>False</code></span></span><div class='docblock'><p>This variable must be false.</p>
+</div><span id="variant.True" class="variant small-section-header"><a href="#variant.True" class="anchor field"></a><span id='True.v' class='invisible'><code>True</code></span></span><div class='docblock'><p>This variable must be true.</p>
+</div><span id="variant.DontCare" class="variant small-section-header"><a href="#variant.DontCare" class="anchor field"></a><span id='DontCare.v' class='invisible'><code>DontCare</code></span></span><div class='docblock'><p>This variable may be true or false.</p>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="enum" href="../boolean_expression/enum.CubeVar.html" title="enum boolean_expression::CubeVar">CubeVar</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/cubes.rs.html#14' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="../boolean_expression/enum.CubeVar.html" title="enum boolean_expression::CubeVar">CubeVar</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/cubes.rs.html#14' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="enum" href="../boolean_expression/enum.CubeVar.html" title="enum boolean_expression::CubeVar">CubeVar</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/cubes.rs.html#14' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/cubes.rs.html#14' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="enum" href="../boolean_expression/enum.CubeVar.html" title="enum boolean_expression::CubeVar">CubeVar</a></code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/cubes.rs.html#14' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class="enum" href="../boolean_expression/enum.CubeVar.html" title="enum boolean_expression::CubeVar">CubeVar</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/cubes.rs.html#14' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-Eq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> for <a class="enum" href="../boolean_expression/enum.CubeVar.html" title="enum boolean_expression::CubeVar">CubeVar</a></code><a href='#impl-Eq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/cubes.rs.html#14' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-PartialOrd' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html" title="trait core::cmp::PartialOrd">PartialOrd</a> for <a class="enum" href="../boolean_expression/enum.CubeVar.html" title="enum boolean_expression::CubeVar">CubeVar</a></code><a href='#impl-PartialOrd' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/cubes.rs.html#14' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.partial_cmp' class="method"><span id='partial_cmp.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#tymethod.partial_cmp' class='fnname'>partial_cmp</a>(&amp;self, __arg_0: &amp;<a class="enum" href="../boolean_expression/enum.CubeVar.html" title="enum boolean_expression::CubeVar">CubeVar</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="enum" href="https://doc.rust-lang.org/nightly/core/cmp/enum.Ordering.html" title="enum core::cmp::Ordering">Ordering</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/cubes.rs.html#14' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method returns an ordering between <code>self</code> and <code>other</code> values if one exists. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#tymethod.partial_cmp">Read more</a></p>
+</div><h4 id='method.lt' class="method"><span id='lt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.lt' class='fnname'>lt</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#644-649' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests less than (for <code>self</code> and <code>other</code>) and is used by the <code>&lt;</code> operator. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.lt">Read more</a></p>
+</div><h4 id='method.le' class="method"><span id='le.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.le' class='fnname'>le</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#666-671' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests less than or equal to (for <code>self</code> and <code>other</code>) and is used by the <code>&lt;=</code> operator. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.le">Read more</a></p>
+</div><h4 id='method.gt' class="method"><span id='gt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.gt' class='fnname'>gt</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#687-692' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests greater than (for <code>self</code> and <code>other</code>) and is used by the <code>&gt;</code> operator. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.gt">Read more</a></p>
+</div><h4 id='method.ge' class="method"><span id='ge.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.ge' class='fnname'>ge</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#709-714' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests greater than or equal to (for <code>self</code> and <code>other</code>) and is used by the <code>&gt;=</code> operator. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.ge">Read more</a></p>
+</div></div><h3 id='impl-Ord' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html" title="trait core::cmp::Ord">Ord</a> for <a class="enum" href="../boolean_expression/enum.CubeVar.html" title="enum boolean_expression::CubeVar">CubeVar</a></code><a href='#impl-Ord' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/cubes.rs.html#14' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.cmp' class="method"><span id='cmp.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html#tymethod.cmp' class='fnname'>cmp</a>(&amp;self, __arg_0: &amp;<a class="enum" href="../boolean_expression/enum.CubeVar.html" title="enum boolean_expression::CubeVar">CubeVar</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/cmp/enum.Ordering.html" title="enum core::cmp::Ordering">Ordering</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/cubes.rs.html#14' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method returns an <code>Ordering</code> between <code>self</code> and <code>other</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html#tymethod.cmp">Read more</a></p>
+</div><h4 id='method.max' class="method"><span id='max.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html#method.max' class='fnname'>max</a>(self, other: Self) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.21.0'>1.21.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#460-463' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Compares and returns the maximum of two values. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html#method.max">Read more</a></p>
+</div><h4 id='method.min' class="method"><span id='min.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html#method.min' class='fnname'>min</a>(self, other: Self) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.21.0'>1.21.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#476-479' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Compares and returns the minimum of two values. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html#method.min">Read more</a></p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -91,12 +113,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -128,11 +154,8 @@
     <script>
         window.rootPath = "../";
         window.currentCrate = "boolean_expression";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

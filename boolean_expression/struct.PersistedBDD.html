@@ -9,6 +9,7 @@
 
     <title>boolean_expression::PersistedBDD - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
     
@@ -16,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,8 +28,9 @@
     
 
     <nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
-        <p class='location'><a href='index.html'>boolean_expression</a></p><script>window.sidebarCurrent = {name: 'PersistedBDD', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct PersistedBDD</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.new">new</a><a href="#method.bdd">bdd</a><a href="#method.bdd_mut">bdd_mut</a><a href="#method.persist">persist</a><a href="#method.persist_all">persist_all</a></div></div><p class='location'><a href='index.html'>boolean_expression</a></p><script>window.sidebarCurrent = {name: 'PersistedBDD', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script></div>
     </nav>
 
     <nav class="sub">
@@ -42,30 +44,32 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>boolean_expression</a>::<wbr><a class='struct' href=''>PersistedBDD</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>boolean_expression</a>::<wbr><a class="struct" href=''>PersistedBDD</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-579' class='srclink' href='../src/boolean_expression/src/bdd.rs.html#398-404' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct PersistedBDD&lt;T&gt; <span class='where'>where T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html' title='core::cmp::Ord'>Ord</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a></span> {
-    // some fields omitted
-}</pre><div class='docblock'><p>A <code>PersistedBDD</code> is a wrapper around a <code>BDD</code> that provides a means to write
+               </span><a class='srclink' href='../src/boolean_expression/bdd.rs.html#501-508' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct PersistedBDD&lt;T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html" title="trait core::cmp::Ord">Ord</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a>,&nbsp;</span> { /* fields omitted */ }</pre><div class='docblock'><p>A <code>PersistedBDD</code> is a wrapper around a <code>BDD</code> that provides a means to write
 BDD labels and nodes out to a <code>BDDOutput</code>. It tracks how much of the BDD
 has already been writen out, and writes out new nodes and labels as
 required when its <code>persist()</code> or <code>persist_all()</code> method is called.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl&lt;T&gt; <a class='struct' href='../boolean_expression/struct.PersistedBDD.html' title='boolean_expression::PersistedBDD'>PersistedBDD</a>&lt;T&gt; <span class='where'>where T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html' title='core::cmp::Ord'>Ord</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a></span></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-584' class='srclink' href='../src/boolean_expression/src/bdd.rs.html#406-456' title='goto source code'>[src]</a></span></h3>
-<div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../boolean_expression/struct.PersistedBDD.html' title='boolean_expression::PersistedBDD'>PersistedBDD</a>&lt;T&gt;</code></h4>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl&lt;T&gt; <a class="struct" href="../boolean_expression/struct.PersistedBDD.html" title="struct boolean_expression::PersistedBDD">PersistedBDD</a>&lt;T&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Ord.html" title="trait core::cmp::Ord">Ord</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a>,&nbsp;</span></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#510-561' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>pub fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class="struct" href="../boolean_expression/struct.PersistedBDD.html" title="struct boolean_expression::PersistedBDD">PersistedBDD</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#515-521' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Create a new <code>PersistedBDD</code>.</p>
-</div><h4 id='method.bdd' class='method'><code>fn <a href='#method.bdd' class='fnname'>bdd</a>(&amp;self) -&gt; &amp;<a class='struct' href='../boolean_expression/struct.BDD.html' title='boolean_expression::BDD'>BDD</a>&lt;T&gt;</code></h4>
+</div><h4 id='method.bdd' class="method"><span id='bdd.v' class='invisible'><code>pub fn <a href='#method.bdd' class='fnname'>bdd</a>(&amp;self) -&gt; &amp;<a class="struct" href="../boolean_expression/struct.BDD.html" title="struct boolean_expression::BDD">BDD</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#524-526' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Return the inner BDD.</p>
-</div><h4 id='method.bdd_mut' class='method'><code>fn <a href='#method.bdd_mut' class='fnname'>bdd_mut</a>(&amp;mut self) -&gt; &amp;mut <a class='struct' href='../boolean_expression/struct.BDD.html' title='boolean_expression::BDD'>BDD</a>&lt;T&gt;</code></h4>
+</div><h4 id='method.bdd_mut' class="method"><span id='bdd_mut.v' class='invisible'><code>pub fn <a href='#method.bdd_mut' class='fnname'>bdd_mut</a>(&amp;mut self) -&gt; &amp;mut <a class="struct" href="../boolean_expression/struct.BDD.html" title="struct boolean_expression::BDD">BDD</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#529-531' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Return the inner BDD.</p>
-</div><h4 id='method.persist' class='method'><code>fn <a href='#method.persist' class='fnname'>persist</a>&lt;E&gt;(&amp;mut self, f: <a class='type' href='../boolean_expression/type.BDDFunc.html' title='boolean_expression::BDDFunc'>BDDFunc</a>, out: &amp;<a class='trait' href='../boolean_expression/trait.BDDOutput.html' title='boolean_expression::BDDOutput'>BDDOutput</a>&lt;T, E&gt;) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, E&gt;</code></h4>
+</div><h4 id='method.persist' class="method"><span id='persist.v' class='invisible'><code>pub fn <a href='#method.persist' class='fnname'>persist</a>&lt;E&gt;(&amp;mut self, f: <a class="type" href="../boolean_expression/type.BDDFunc.html" title="type boolean_expression::BDDFunc">BDDFunc</a>, out: &amp;<a class="trait" href="../boolean_expression/trait.BDDOutput.html" title="trait boolean_expression::BDDOutput">BDDOutput</a>&lt;T, E&gt;) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, E&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#536-550' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Persist (at least) all labels and nodes in the BDD necessary to fully
 describe BDD function <code>f</code>. More records than strictly necessary may be
 written out.</p>
-</div><h4 id='method.persist_all' class='method'><code>fn <a href='#method.persist_all' class='fnname'>persist_all</a>&lt;E&gt;(&amp;mut self, out: &amp;<a class='trait' href='../boolean_expression/trait.BDDOutput.html' title='boolean_expression::BDDOutput'>BDDOutput</a>&lt;T, E&gt;) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, E&gt;</code></h4>
+</div><h4 id='method.persist_all' class="method"><span id='persist_all.v' class='invisible'><code>pub fn <a href='#method.persist_all' class='fnname'>persist_all</a>&lt;E&gt;(&amp;mut self, out: &amp;<a class="trait" href="../boolean_expression/trait.BDDOutput.html" title="trait boolean_expression::BDDOutput">BDDOutput</a>&lt;T, E&gt;) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, E&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/boolean_expression/bdd.rs.html#553-560' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Persist all labels and nodes in the BDD.</p>
 </div></div></section>
     <section id='search' class="content hidden"></section>
@@ -84,12 +88,16 @@ written out.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -121,11 +129,8 @@ written out.</p>
     <script>
         window.rootPath = "../";
         window.currentCrate = "boolean_expression";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

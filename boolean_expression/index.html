@@ -9,6 +9,7 @@
 
     <title>boolean_expression - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
     
@@ -16,7 +17,7 @@
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc mod">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,8 +28,9 @@
     
 
     <nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
         
-        <p class='location'></p><script>window.sidebarCurrent = {name: 'boolean_expression', ty: 'mod', relpath: '../'};</script>
+        <p class='location'>Crate boolean_expression</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#constants">Constants</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'boolean_expression', ty: 'mod', relpath: '../'};</script></div>
     </nav>
 
     <nav class="sub">
@@ -42,12 +44,12 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>boolean_expression</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Crate <a class="mod" href=''>boolean_expression</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-0' class='srclink' href='../src/boolean_expression/src/lib.rs.html#7-37' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../src/boolean_expression/lib.rs.html#7-40' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id='boolean_expression-expression-manipulation--bdd-library' class='section-header'><a href='#boolean_expression-expression-manipulation--bdd-library'>boolean_expression expression manipulation / BDD library</a></h1>
 <p>This crate provides for the manipulation and evaluation of Boolean expressions
@@ -69,9 +71,9 @@ expensive.</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.BDD.html'
-                                  title='boolean_expression::BDD'>BDD</a></td>
-                           <td class='docblock short'>
+                           <td><a class="struct" href="struct.BDD.html"
+                                  title='struct boolean_expression::BDD'>BDD</a></td>
+                           <td class='docblock-short'>
                                 <p>A <code>BDD</code> is a Binary Decision Diagram, an efficient way to represent a
 Boolean function in a canonical way. (It is actually a &quot;Reduced Ordered
 Binary Decision Diagram&quot;, which gives it its canonicity assuming terminals
@@ -79,26 +81,36 @@ are ordered consistently.)</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.Cube.html'
-                                  title='boolean_expression::Cube'>Cube</a></td>
-                           <td class='docblock short'>
+                           <td><a class="struct" href="struct.BDDLoader.html"
+                                  title='struct boolean_expression::BDDLoader'>BDDLoader</a></td>
+                           <td class='docblock-short'>
+                                <p>A <code>BDDLoader</code> provides a way to inject BDD nodes directly, as they were
+previously dumped by a <code>PersistedBDD</code> to a <code>BDDOutput</code>. The user should
+create a <code>BDDLoader</code> instance wrapped around a <code>BDD</code> and call
+<code>inject_label</code> and <code>inject_node</code> as appropriate to inject labels and nodes.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Cube.html"
+                                  title='struct boolean_expression::Cube'>Cube</a></td>
+                           <td class='docblock-short'>
                                 <p>A <code>Cube</code> is one (multidimensional) cube in the variable space: i.e., a
 particular set of variable assignments, where each variable is assigned
 either true, false, or &quot;don&#39;t care&quot;.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.CubeList.html'
-                                  title='boolean_expression::CubeList'>CubeList</a></td>
-                           <td class='docblock short'>
+                           <td><a class="struct" href="struct.CubeList.html"
+                                  title='struct boolean_expression::CubeList'>CubeList</a></td>
+                           <td class='docblock-short'>
                                 <p>A <code>CubeList</code> is a sum (OR&#39;d list) of cubes. It represents a Boolean
 expression in sum-of-products form, by construction.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='struct' href='struct.PersistedBDD.html'
-                                  title='boolean_expression::PersistedBDD'>PersistedBDD</a></td>
-                           <td class='docblock short'>
+                           <td><a class="struct" href="struct.PersistedBDD.html"
+                                  title='struct boolean_expression::PersistedBDD'>PersistedBDD</a></td>
+                           <td class='docblock-short'>
                                 <p>A <code>PersistedBDD</code> is a wrapper around a <code>BDD</code> that provides a means to write
 BDD labels and nodes out to a <code>BDDOutput</code>. It tracks how much of the BDD
 has already been writen out, and writes out new nodes and labels as
@@ -107,23 +119,23 @@ required when its <code>persist()</code> or <code>persist_all()</code> method is
                        </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='enum' href='enum.CubeMergeResult.html'
-                                  title='boolean_expression::CubeMergeResult'>CubeMergeResult</a></td>
-                           <td class='docblock short'>
+                           <td><a class="enum" href="enum.CubeMergeResult.html"
+                                  title='enum boolean_expression::CubeMergeResult'>CubeMergeResult</a></td>
+                           <td class='docblock-short'>
                                 <p>The result of attempting to merge two cubes.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='enum' href='enum.CubeVar.html'
-                                  title='boolean_expression::CubeVar'>CubeVar</a></td>
-                           <td class='docblock short'>
+                           <td><a class="enum" href="enum.CubeVar.html"
+                                  title='enum boolean_expression::CubeVar'>CubeVar</a></td>
+                           <td class='docblock-short'>
                                 <p>A variable assignment in a cube.</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='enum' href='enum.Expr.html'
-                                  title='boolean_expression::Expr'>Expr</a></td>
-                           <td class='docblock short'>
+                           <td><a class="enum" href="enum.Expr.html"
+                                  title='enum boolean_expression::Expr'>Expr</a></td>
+                           <td class='docblock-short'>
                                 <p>An <code>Expr</code> is a simple Boolean logic expression. It may contain terminals
 (i.e., free variables), constants, and the following fundamental operations:
 AND, OR, NOT.</p>
@@ -131,24 +143,24 @@ AND, OR, NOT.</p>
                        </tr></table><h2 id='constants' class='section-header'><a href="#constants">Constants</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='constant' href='constant.BDD_ONE.html'
-                                  title='boolean_expression::BDD_ONE'>BDD_ONE</a></td>
-                           <td class='docblock short'>
+                           <td><a class="constant" href="constant.BDD_ONE.html"
+                                  title='constant boolean_expression::BDD_ONE'>BDD_ONE</a></td>
+                           <td class='docblock-short'>
                                 <p>A special terminal <code>BDDFunc</code> which is constant <code>true</code> (one).</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class='constant' href='constant.BDD_ZERO.html'
-                                  title='boolean_expression::BDD_ZERO'>BDD_ZERO</a></td>
-                           <td class='docblock short'>
+                           <td><a class="constant" href="constant.BDD_ZERO.html"
+                                  title='constant boolean_expression::BDD_ZERO'>BDD_ZERO</a></td>
+                           <td class='docblock-short'>
                                 <p>A special terminal <code>BDDFunc</code> which is constant <code>false</code> (zero).</p>
                            </td>
                        </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='trait' href='trait.BDDOutput.html'
-                                  title='boolean_expression::BDDOutput'>BDDOutput</a></td>
-                           <td class='docblock short'>
+                           <td><a class="trait" href="trait.BDDOutput.html"
+                                  title='trait boolean_expression::BDDOutput'>BDDOutput</a></td>
+                           <td class='docblock-short'>
                                 <p>The <code>BDDOutput</code> trait provides an interface to inform a listener about new
 BDD nodes that are created. It allows the user to persist a BDD to a stream
 (e.g., a log or trace file) as a long-running process executes. A
@@ -157,9 +169,9 @@ BDD nodes that are created. It allows the user to persist a BDD to a stream
                        </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
 <table>
                        <tr class=' module-item'>
-                           <td><a class='type' href='type.BDDFunc.html'
-                                  title='boolean_expression::BDDFunc'>BDDFunc</a></td>
-                           <td class='docblock short'>
+                           <td><a class="type" href="type.BDDFunc.html"
+                                  title='type boolean_expression::BDDFunc'>BDDFunc</a></td>
+                           <td class='docblock-short'>
                                 <p>A <code>BDDFunc</code> is a function index within a particular <code>BDD</code>. It must only
 be used with the <code>BDD</code> instance which produced it.</p>
                            </td>
@@ -180,12 +192,16 @@ be used with the <code>BDD</code> instance which produced it.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -217,11 +233,8 @@ be used with the <code>BDD</code> instance which produced it.</p>
     <script>
         window.rootPath = "../";
         window.currentCrate = "boolean_expression";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>
