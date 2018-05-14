@@ -338,12 +338,12 @@ where
         self.bdd.or(a, b)
     }
 
-    /// Produce a function within the BDD representing the logical implication 'a' -> 'b'
+    /// Produce a function within the BDD representing the logical implication `a` -> `b`.
     pub fn implies(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
         self.bdd.implies(a, b)
     }
 
-    /// checks whether the function 'f' within the BDD is satisfiable
+    /// Check whether the function `f` within the BDD is satisfiable.
     pub fn sat(&self, f:BDDFunc) -> bool {
         match f {
             BDD_ZERO => false,
@@ -351,8 +351,7 @@ where
         }
     } 
 
-    /// returns a new function based on `f` but with the
-    /// given label forced to the given value
+    /// Return a new function based on `f` but with the given label forced to the given value.
     pub fn restrict(&mut self, f: BDDFunc, t: T, val: bool) -> BDDFunc {
         self.bdd.restrict(f, self.labels[&t], val)
     } 
