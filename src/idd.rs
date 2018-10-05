@@ -6,6 +6,7 @@
 use std::cmp;
 use std::collections::hash_map::Entry as HashEntry;
 use std::collections::{HashMap, HashSet};
+use std::fmt;
 
 use {BDDFunc, BDDLabel, LabelBDD, BDD_ONE, BDD_ZERO};
 
@@ -15,17 +16,38 @@ pub(crate) enum IDDFunc {
     Node(usize),
 }
 
-#[derive(Clone, Debug, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
 pub(crate) struct IDDNode {
     label: BDDLabel,
     lo: IDDFunc,
     hi: IDDFunc,
+    max: isize,
 }
 
-#[derive(Clone, Debug)]
+impl fmt::Debug for IDDNode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "IDDNode(label = {}, lo = {:?}, hi = {:?}, max = {})",
+            self.label, self.lo, self.hi, self.max
+        )
+    }
+}
+
+#[derive(Clone)]
 pub(crate) struct LabelIDD {
     nodes: Vec<IDDNode>,
     dedup_hash: HashMap<IDDNode, usize>,
+}
+
+impl fmt::Debug for LabelIDD {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "LabelIDD:")?;
+        for (idx, node) in self.nodes.iter().enumerate() {
+            writeln!(f, "  node {}: {:?}", idx, node)?;
+        }
+        Ok(())
+    }
 }
 
 impl IDDFunc {
@@ -63,7 +85,12 @@ impl LabelIDD {
             let lo = l.from_bdd_func(n.lo);
             let hi = l.from_bdd_func(n.hi);
             let label = n.label;
-            let n = IDDNode { label, lo, hi };
+            let n = IDDNode {
+                label: label,
+                lo: lo.clone(),
+                hi: hi.clone(),
+                max: cmp::max(l.max_value(lo.clone()), l.max_value(hi.clone())),
+            };
             let this = l.nodes.len();
             l.dedup_hash.insert(n.clone(), this);
             l.nodes.push(n);
@@ -87,8 +114,9 @@ impl LabelIDD {
         }
         let n = IDDNode {
             label: label,
-            lo: lo,
-            hi: hi,
+            lo: lo.clone(),
+            hi: hi.clone(),
+            max: cmp::max(self.max_value(lo.clone()), self.max_value(hi.clone())),
         };
         match self.dedup_hash.entry(n.clone()) {
             HashEntry::Occupied(o) => IDDFunc::Node(*o.get()),
@@ -115,17 +143,34 @@ impl LabelIDD {
     {
         if a.is_const() && b.is_const() {
             return self.constant(f(a.as_const().unwrap(), b.as_const().unwrap()));
-        } else if a.is_node_idx() {
+        } else if b.is_const() {
             let n = self.nodes[a.as_node_idx().unwrap()].clone();
             let add_lo = self.arith_op(n.lo.clone(), b.clone(), f);
             let add_hi = self.arith_op(n.hi.clone(), b.clone(), f);
             self.get_node(n.label, add_lo, add_hi)
-        } else {
-            assert!(b.is_node_idx());
+        } else if a.is_const() {
             let n = self.nodes[b.as_node_idx().unwrap()].clone();
             let add_lo = self.arith_op(a.clone(), n.lo.clone(), f);
             let add_hi = self.arith_op(a.clone(), n.hi.clone(), f);
             self.get_node(n.label, add_lo, add_hi)
+        } else {
+            assert!(a.is_node_idx() && b.is_node_idx());
+            let n1 = self.nodes[a.as_node_idx().unwrap()].clone();
+            let n2 = self.nodes[b.as_node_idx().unwrap()].clone();
+            if n1.label < n2.label {
+                let add_lo = self.arith_op(n1.lo.clone(), b.clone(), f);
+                let add_hi = self.arith_op(n1.hi.clone(), b.clone(), f);
+                self.get_node(n1.label, add_lo, add_hi)
+            } else if n1.label > n2.label {
+                let add_lo = self.arith_op(a.clone(), n2.lo.clone(), f);
+                let add_hi = self.arith_op(a.clone(), n2.hi.clone(), f);
+                self.get_node(n2.label, add_lo, add_hi)
+            } else {
+                assert!(n1.label == n2.label);
+                let add_lo = self.arith_op(n1.lo.clone(), n2.lo.clone(), f);
+                let add_hi = self.arith_op(n1.hi.clone(), n2.hi.clone(), f);
+                self.get_node(n1.label, add_lo, add_hi)
+            }
         }
     }
 
@@ -143,6 +188,24 @@ impl LabelIDD {
 
     pub fn max(&mut self, a: IDDFunc, b: IDDFunc) -> IDDFunc {
         self.arith_op(a, b, &|aconst, bconst| cmp::max(aconst, bconst))
+    }
+
+    pub fn eq(&self, a: IDDFunc, b: IDDFunc, bdd: &mut LabelBDD) -> BDDFunc {
+        if a.is_const() && b.is_const() {
+            if a.as_const().unwrap() == b.as_const().unwrap() {
+                BDD_ONE
+            } else {
+                BDD_ZERO
+            }
+        } else if a.is_node_idx() {
+            let n = self.nodes[a.as_node_idx().unwrap()].clone();
+            let x0 = bdd.terminal(n.label);
+            let eq_lo = self.eq(n.lo.clone(), b.clone(), bdd);
+            let eq_hi = self.eq(n.hi.clone(), b.clone(), bdd);
+            bdd.ite(x0, eq_hi, eq_lo)
+        } else {
+            self.eq(b.clone(), a.clone(), bdd)
+        }
     }
 
     pub fn evaluate(&self, func: IDDFunc, inputs: &[bool]) -> Option<isize> {
@@ -167,6 +230,13 @@ impl LabelIDD {
             }
         }
         f.as_const()
+    }
+
+    pub fn max_value(&self, f: IDDFunc) -> isize {
+        match f {
+            IDDFunc::Const(i) => i,
+            IDDFunc::Node(idx) => self.nodes[idx].max,
+        }
     }
 }
 
@@ -242,5 +312,39 @@ mod test {
         assert!(idd.evaluate(idd.from_bdd_func(x4_bdd), &[true, false]) == Some(1));
         assert!(idd.evaluate(idd.from_bdd_func(x4_bdd), &[false, false]) == Some(1));
         assert!(idd.evaluate(idd.from_bdd_func(x4_bdd), &[false, true]) == Some(0));
+    }
+
+    #[test]
+    fn test_idd_max_value() {
+        let mut idd = LabelIDD::new();
+        let x0 = idd.terminal(0, 10, 20);
+        let x1 = idd.terminal(1, 35, 40);
+        let x2 = idd.add(x0.clone(), x1.clone());
+        let x3 = idd.sub(x0.clone(), x1.clone());
+        let x4 = idd.min(x0.clone(), x1.clone());
+        let x5 = idd.max(x0.clone(), x1.clone());
+        assert!(idd.max_value(x0) == 20);
+        assert!(idd.max_value(x1) == 40);
+        assert!(idd.max_value(x2) == 60);
+        assert!(idd.max_value(x3) == -15);
+        assert!(idd.max_value(x4) == 20);
+        assert!(idd.max_value(x5) == 40);
+    }
+
+    #[test]
+    fn test_idd_eq() {
+        let mut idd = LabelIDD::new();
+        let x0 = idd.terminal(0, 10, 20);
+        let x1 = idd.terminal(1, 35, 40);
+        let x2 = idd.add(x0.clone(), x1.clone());
+        let x3 = idd.min(x0.clone(), x1.clone());
+        let mut bdd = LabelBDD::new();
+        let eq0 = idd.eq(x3.clone(), x0.clone(), &mut bdd);
+        assert!(eq0 == BDD_ONE);
+        let const45 = idd.constant(45);
+        let eq1 = idd.eq(x2.clone(), const45, &mut bdd);
+        assert!(bdd.evaluate(eq1, &[false, false]) == Some(true));
+        assert!(bdd.evaluate(eq1, &[false, true]) == Some(false));
+        assert!(bdd.evaluate(eq1, &[true]) == Some(false));
     }
 }

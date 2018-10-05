@@ -4,16 +4,18 @@
 // License.
 //
 
-use std::collections::{BTreeSet, HashMap, HashSet};
-use std::collections::hash_map::Entry as HashEntry;
+use itertools::Itertools;
 use std::cmp;
+use std::collections::hash_map::Entry as HashEntry;
+use std::collections::{BTreeSet, HashMap, HashSet};
+use std::fmt;
 use std::fmt::Debug;
 use std::hash::Hash;
 use std::usize;
-use itertools::Itertools;
 
-use Expr;
 use cubes::{Cube, CubeList, CubeVar};
+use idd::*;
+use Expr;
 
 /// A `BDDFunc` is a function index within a particular `BDD`. It must only
 /// be used with the `BDD` instance which produced it.
@@ -26,11 +28,33 @@ pub const BDD_ONE: BDDFunc = usize::MAX - 1;
 
 pub(crate) type BDDLabel = usize;
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub(crate) struct BDDNode {
     pub label: BDDLabel,
     pub lo: BDDFunc,
     pub hi: BDDFunc,
+}
+
+fn bdd_func_str(b: BDDFunc) -> String {
+    if b == BDD_ZERO {
+        "ZERO".to_owned()
+    } else if b == BDD_ONE {
+        "ONE".to_owned()
+    } else {
+        format!("{}", b)
+    }
+}
+
+impl fmt::Debug for BDDNode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "BDDNode(label = {}, lo = {}, hi = {})",
+            self.label,
+            bdd_func_str(self.lo),
+            bdd_func_str(self.hi)
+        )
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -171,11 +195,7 @@ impl LabelBDD {
             if node.label > i {
                 continue;
             } else if node.label == i {
-                f = if *val {
-                    node.hi
-                } else {
-                    node.lo
-                };
+                f = if *val { node.hi } else { node.lo };
             }
         }
         match f {
@@ -227,8 +247,7 @@ impl LabelBDD {
                 &CubeVar::False => Some(Expr::not(Expr::Terminal(i))),
                 &CubeVar::True => Some(Expr::Terminal(i)),
                 &CubeVar::DontCare => None,
-            })
-            .fold1(|a, b| Expr::and(a, b))
+            }).fold1(|a, b| Expr::and(a, b))
             .unwrap_or(Expr::Const(true))
     }
 
@@ -251,6 +270,30 @@ impl LabelBDD {
             self.compute_cubelist(&mut cubelists, func, nvars);
             self.cubelist_to_expr(cubelists[func].as_ref().unwrap())
         }
+    }
+
+    /// Returns a function that is true whenever the maximum number of
+    /// functions in `funcs` are true.
+    pub fn max_sat(&mut self, funcs: &[BDDFunc]) -> BDDFunc {
+        // First, construct an IDD function for each BDD function,
+        // with value 1 if true and 0 if false. Then add these
+        // together to obtain a single IDD function whose value is the
+        // number of satisfied (true) BDD functions.
+        let mut idd = LabelIDD::from_bdd(self);
+        let idd_funcs: Vec<_> = funcs.iter().map(|f| idd.from_bdd_func(*f)).collect();
+        let satisfied_count = idd_funcs
+            .iter()
+            .cloned()
+            .fold1(|a, b| idd.add(a.clone(), b.clone()))
+            .unwrap();
+
+        // Now, find the maximum reachable count.
+        let max_count = idd.max_value(satisfied_count.clone());
+
+        // Finally, return a boolean function that is true when the
+        // maximal number of functions are satisfied.
+        let c = idd.constant(max_count);
+        idd.eq(satisfied_count, c, self)
     }
 }
 
@@ -344,17 +387,17 @@ where
     }
 
     /// Check whether the function `f` within the BDD is satisfiable.
-    pub fn sat(&self, f:BDDFunc) -> bool {
+    pub fn sat(&self, f: BDDFunc) -> bool {
         match f {
             BDD_ZERO => false,
-            _        => true
+            _ => true,
         }
-    } 
+    }
 
     /// Return a new function based on `f` but with the given label forced to the given value.
     pub fn restrict(&mut self, f: BDDFunc, t: T, val: bool) -> BDDFunc {
         self.bdd.restrict(f, self.labels[&t], val)
-    } 
+    }
 
     /// Produce a function within the BDD representing the given expression
     /// `e`, which may contain ANDs, ORs, NOTs, terminals, and constants.
@@ -476,6 +519,12 @@ where
                 self.reachable_nodes(self.bdd.nodes[f].lo, s);
             }
         }
+    }
+
+    /// Produce a function that is true when the maximal number of
+    /// given input functions are true.
+    fn max_sat(&mut self, funcs: &[BDDFunc]) -> BDDFunc {
+        self.bdd.max_sat(funcs)
     }
 }
 
@@ -611,9 +660,9 @@ where
 
 mod test {
     use super::*;
-    use Expr;
-    use std::collections::HashMap;
     use std::cell::RefCell;
+    use std::collections::HashMap;
+    use Expr;
     extern crate rand;
     use self::rand::Rng;
 
@@ -724,11 +773,10 @@ mod test {
         let f_1_or_2 = b.or(f_1, f_2);
         let f_0_and_1_or_2 = b.and(f_0, f_1_or_2);
         assert!(
-            b.to_expr(f_0_and_1_or_2)
-                == Expr::or(
-                    Expr::and(Expr::Terminal(0), Expr::Terminal(2)),
-                    Expr::and(Expr::Terminal(0), Expr::Terminal(1))
-                )
+            b.to_expr(f_0_and_1_or_2) == Expr::or(
+                Expr::and(Expr::Terminal(0), Expr::Terminal(2)),
+                Expr::and(Expr::Terminal(0), Expr::Terminal(1))
+            )
         );
     }
 
@@ -890,6 +938,26 @@ mod test {
     }
 
     #[test]
+    fn max_sat() {
+        let mut bdd = BDD::new();
+        // Test: a, a+b, a+c, c', c, bd, ad, d'
+        let a = bdd.terminal(0);
+        let b = bdd.terminal(1);
+        let c = bdd.terminal(2);
+        let d = bdd.terminal(3);
+        let cnot = bdd.not(c);
+        let dnot = bdd.not(d);
+        let ab = bdd.and(a, b);
+        let ac = bdd.and(a, c);
+        let bd = bdd.and(b, d);
+        let ad = bdd.and(a, d);
+        let max_sat = bdd.max_sat(&[a, ab, ac, cnot, c, bd, ad, dnot]);
+        let abc = bdd.and(ab, c);
+        let abcd = bdd.and(abc, d);
+        assert!(max_sat == abcd);
+    }
+
+    #[test]
     fn persist_bdd() {
         let out = InMemoryBDDLog::new();
         let mut p = PersistedBDD::new();
@@ -900,23 +968,21 @@ mod test {
         let ab_or_c = p.bdd_mut().or(ab, term_c);
         p.persist(ab_or_c, &out).unwrap();
         assert!(
-            *out.labels.borrow()
-                == vec![
-                    (0, "A".to_owned()),
-                    (1, "B".to_owned()),
-                    (2, "C".to_owned()),
-                ]
+            *out.labels.borrow() == vec![
+                (0, "A".to_owned()),
+                (1, "B".to_owned()),
+                (2, "C".to_owned()),
+            ]
         );
         assert!(
-            *out.nodes.borrow()
-                == vec![
-                    (0, 0, BDD_ZERO, BDD_ONE),
-                    (1, 1, BDD_ZERO, BDD_ONE),
-                    (2, 2, BDD_ZERO, BDD_ONE),
-                    (3, 0, BDD_ZERO, 1),
-                    (4, 1, 2, BDD_ONE),
-                    (5, 0, 2, 4),
-                ]
+            *out.nodes.borrow() == vec![
+                (0, 0, BDD_ZERO, BDD_ONE),
+                (1, 1, BDD_ZERO, BDD_ONE),
+                (2, 2, BDD_ZERO, BDD_ONE),
+                (3, 0, BDD_ZERO, 1),
+                (4, 1, 2, BDD_ONE),
+                (5, 0, 2, 4),
+            ]
         );
     }
 
