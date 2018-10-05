@@ -24,18 +24,18 @@ pub const BDD_ZERO: BDDFunc = usize::MAX;
 /// A special terminal `BDDFunc` which is constant `true` (one).
 pub const BDD_ONE: BDDFunc = usize::MAX - 1;
 
-type BDDLabel = usize;
+pub(crate) type BDDLabel = usize;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-struct BDDNode {
-    label: BDDLabel,
-    lo: BDDFunc,
-    hi: BDDFunc,
+pub(crate) struct BDDNode {
+    pub label: BDDLabel,
+    pub lo: BDDFunc,
+    pub hi: BDDFunc,
 }
 
 #[derive(Clone, Debug)]
-struct LabelBDD {
-    nodes: Vec<BDDNode>,
+pub(crate) struct LabelBDD {
+    pub nodes: Vec<BDDNode>,
     dedup_hash: HashMap<BDDNode, BDDFunc>,
 }
 

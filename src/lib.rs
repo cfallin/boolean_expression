@@ -32,9 +32,11 @@ extern crate indoc;
 
 mod expr;
 mod bdd;
+mod idd;
 mod cubes;
 mod simplify;
 
 pub use expr::*;
 pub use bdd::*;
+pub(crate) use idd::*;
 pub use cubes::*;
