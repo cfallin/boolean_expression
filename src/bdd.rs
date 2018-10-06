@@ -33,6 +33,7 @@ pub(crate) struct BDDNode {
     pub label: BDDLabel,
     pub lo: BDDFunc,
     pub hi: BDDFunc,
+    pub varcount: usize,
 }
 
 fn bdd_func_str(b: BDDFunc) -> String {
@@ -79,6 +80,7 @@ impl LabelBDD {
             label: label,
             lo: lo,
             hi: hi,
+            varcount: cmp::min(self.sat_varcount(lo), self.sat_varcount(hi) + 1),
         };
         match self.dedup_hash.entry(n.clone()) {
             HashEntry::Occupied(o) => *o.get(),
@@ -88,6 +90,14 @@ impl LabelBDD {
                 v.insert(idx);
                 idx
             }
+        }
+    }
+
+    fn sat_varcount(&self, f: BDDFunc) -> usize {
+        if f == BDD_ZERO || f == BDD_ONE {
+            0
+        } else {
+            self.nodes[f].varcount
         }
     }
 
@@ -459,7 +469,9 @@ where
             _ => {
                 let hi = self.bdd.nodes[f].hi;
                 let lo = self.bdd.nodes[f].lo;
-                if hi != BDD_ZERO {
+                if hi != BDD_ZERO
+                    && (lo == BDD_ZERO || self.bdd.sat_varcount(hi) < self.bdd.sat_varcount(lo))
+                {
                     assignments.insert(self.rev_labels[self.bdd.nodes[f].label].clone(), true);
                     self.sat_one_internal(hi, assignments);
                 } else {
@@ -652,6 +664,10 @@ where
             label: label_id as BDDLabel,
             lo: lo,
             hi: hi,
+            varcount: cmp::min(
+                self.bdd.bdd.sat_varcount(lo),
+                self.bdd.bdd.sat_varcount(hi) + 1,
+            ),
         };
         self.bdd.bdd.nodes.push(n.clone());
         self.bdd.bdd.dedup_hash.insert(n, id);
@@ -958,6 +974,29 @@ mod test {
     }
 
     #[test]
+    fn max_sat_min_var() {
+        let mut bdd = BDD::new();
+        // Test: a, a+b, a+c, c', c, bd, d'
+        let a = bdd.terminal(0);
+        let b = bdd.terminal(1);
+        let c = bdd.terminal(2);
+        let d = bdd.terminal(3);
+        let cnot = bdd.not(c);
+        let dnot = bdd.not(d);
+        let ab = bdd.and(a, b);
+        let ac = bdd.and(a, c);
+        let bd = bdd.and(b, d);
+        let max_sat = bdd.max_sat(&[a, ab, ac, cnot, c, bd, dnot]);
+        let abc = bdd.and(ab, c);
+        assert!(max_sat == abc);
+        let assn = bdd.sat_one(max_sat).unwrap();
+        assert!(assn.get(&0) == Some(&true));
+        assert!(assn.get(&1) == Some(&true));
+        assert!(assn.get(&2) == Some(&true));
+        assert!(assn.get(&3) == None);
+    }
+
+    #[test]
     fn persist_bdd() {
         let out = InMemoryBDDLog::new();
         let mut p = PersistedBDD::new();
@@ -993,8 +1032,8 @@ mod test {
             let mut loader = BDDLoader::new(&mut bdd);
             loader.inject_label("A".to_owned(), 0);
             loader.inject_label("B".to_owned(), 1);
-            loader.inject_node(0, 0, BDD_ZERO, 1);
-            loader.inject_node(1, 1, BDD_ZERO, BDD_ONE);
+            loader.inject_node(0, 1, BDD_ZERO, BDD_ONE);
+            loader.inject_node(1, 0, BDD_ZERO, 0);
         }
         let mut h = HashMap::new();
         h.insert("A".to_owned(), true);
