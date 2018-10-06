@@ -538,6 +538,11 @@ where
     pub fn max_sat(&mut self, funcs: &[BDDFunc]) -> BDDFunc {
         self.bdd.max_sat(funcs)
     }
+
+    /// Return a vector of all labels in the BDD.
+    pub fn labels(&self) -> Vec<T> {
+        self.labels.keys().cloned().collect()
+    }
 }
 
 /// The `BDDOutput` trait provides an interface to inform a listener about new
