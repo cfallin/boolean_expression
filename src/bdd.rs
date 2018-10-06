@@ -535,7 +535,7 @@ where
 
     /// Produce a function that is true when the maximal number of
     /// given input functions are true.
-    fn max_sat(&mut self, funcs: &[BDDFunc]) -> BDDFunc {
+    pub fn max_sat(&mut self, funcs: &[BDDFunc]) -> BDDFunc {
         self.bdd.max_sat(funcs)
     }
 }
