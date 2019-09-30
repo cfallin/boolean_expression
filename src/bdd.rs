@@ -189,6 +189,11 @@ impl LabelBDD {
     pub fn or(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
         self.ite(a, BDD_ONE, b)
     }
+    
+    pub fn xor(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
+        let not_b = self.not(b);
+        self.ite(a, not_b, b)
+    }
 
     pub fn implies(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
         let not_a = self.not(a);
@@ -372,6 +377,12 @@ where
     pub fn constant(&mut self, val: bool) -> BDDFunc {
         self.bdd.constant(val)
     }
+    
+    /// Produce a function within the BDD representing the logical if-then-else
+    /// of the functions `i`, `t`, and `e`
+    pub fn ite(&mut self, i: BDDFunc, t: BDDFunc, e: BDDFunc) -> BDDFunc {
+        self.bdd.ite(i, t, e)
+    }
 
     /// Produce a function within the BDD representing the logical complement
     /// of the function `n`.
@@ -389,6 +400,12 @@ where
     /// functions `a` and `b`.
     pub fn or(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
         self.bdd.or(a, b)
+    }
+    
+    /// Produce a function within the BDD representing the logical XOR of the
+    /// functions `a` and `b`.
+    pub fn xor(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
+        self.bdd.xor(a, b)
     }
 
     /// Produce a function within the BDD representing the logical implication `a` -> `b`.
