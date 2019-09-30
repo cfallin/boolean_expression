@@ -616,7 +616,7 @@ where
     /// Persist (at least) all labels and nodes in the BDD necessary to fully
     /// describe BDD function `f`. More records than strictly necessary may be
     /// written out.
-    pub fn persist<E>(&mut self, f: BDDFunc, out: &BDDOutput<T, E>) -> Result<(), E> {
+    pub fn persist<E>(&mut self, f: BDDFunc, out: &dyn BDDOutput<T, E>) -> Result<(), E> {
         while self.next_output_label < self.bdd.rev_labels.len() {
             let id = self.next_output_label;
             let t = self.bdd.rev_labels[id].clone();
@@ -633,7 +633,7 @@ where
     }
 
     /// Persist all labels and nodes in the BDD.
-    pub fn persist_all<E>(&mut self, out: &BDDOutput<T, E>) -> Result<(), E> {
+    pub fn persist_all<E>(&mut self, out: &dyn BDDOutput<T, E>) -> Result<(), E> {
         if self.bdd.bdd.nodes.len() > 0 {
             let last_f = self.bdd.bdd.nodes.len() - 1;
             self.persist(last_f, out)
