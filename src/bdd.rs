@@ -620,13 +620,13 @@ where
         while self.next_output_label < self.bdd.rev_labels.len() {
             let id = self.next_output_label;
             let t = self.bdd.rev_labels[id].clone();
-            try!(out.write_label(t, id as u64));
+            out.write_label(t, id as u64)?;
             self.next_output_label += 1;
         }
         while self.next_output_func <= f {
             let id = self.next_output_func;
             let node = &self.bdd.bdd.nodes[id];
-            try!(out.write_node(id, node.label as u64, node.lo, node.hi));
+            out.write_node(id, node.label as u64, node.lo, node.hi)?;
             self.next_output_func += 1;
         }
         Ok(())
