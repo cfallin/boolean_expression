@@ -27,6 +27,7 @@
 extern crate itertools;
 extern crate smallvec;
 
+#[cfg(test)]
 #[macro_use]
 extern crate indoc;
 

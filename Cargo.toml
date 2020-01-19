@@ -8,7 +8,9 @@ documentation = "https://cfallin.github.io/boolean_expression/boolean_expression
 license = "MIT"
 
 [dependencies]
-rand = "0.3"
 smallvec = "0.1"
 itertools = "0.4"
+
+[dev-dependencies]
+rand = "0.3"
 indoc = "0.2"
