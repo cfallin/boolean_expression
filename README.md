@@ -13,6 +13,6 @@ minimizer is more effective.
 `boolean_expression` is Copyright (c) 2016 by Chris Fallin &lt;cfallin@c1f.net&gt;
 and is released under the MIT license. See `LICENSE` for details.
 
-Documentation: [here](https://cfallin.github.io/boolean_expression/boolean_expression/)
+Documentation: [here](https://docs.rs/boolean_expression/)
 
 Crates.io: [here](https://crates.io/crates/boolean_expression)
