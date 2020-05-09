@@ -703,7 +703,9 @@ mod test {
     use std::collections::HashMap;
     use Expr;
     extern crate rand;
-    use self::rand::Rng;
+    extern crate rand_xorshift;
+    use self::rand::{Rng, SeedableRng};
+    use self::rand_xorshift::XorShiftRng;
 
     fn term_hashmap(vals: &[bool], h: &mut HashMap<u32, bool>) {
         h.clear();
@@ -767,10 +769,10 @@ mod test {
         }
     }
 
-    fn random_expr(r: &mut rand::XorShiftRng, nterminals: usize) -> Expr<u32> {
+    fn random_expr<R: Rng>(r: &mut R, nterminals: usize) -> Expr<u32> {
         match r.gen_range(0, 5) {
             0 => Expr::Terminal(r.gen_range(0, nterminals) as u32),
-            1 => Expr::Const(r.gen_weighted_bool(2)),
+            1 => Expr::Const(r.gen::<bool>()),
             2 => Expr::Not(Box::new(random_expr(r, nterminals))),
             3 => Expr::And(
                 Box::new(random_expr(r, nterminals)),
@@ -786,7 +788,7 @@ mod test {
 
     #[test]
     fn bdd_exhaustive_exprs() {
-        let mut rng: rand::XorShiftRng = rand::XorShiftRng::new_unseeded();
+        let mut rng =  XorShiftRng::from_seed(rand::thread_rng().gen());
         for _ in 0..100 {
             let expr = random_expr(&mut rng, 6);
             test_bdd_expr(expr, 6);
