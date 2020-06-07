@@ -18,7 +18,7 @@ struct SimplifyContext<T> {
 
 impl<T> SimplifyContext<T>
 where
-    T: Clone + Debug + Eq + Ord + Hash,
+    T: Clone + Debug + Eq + Hash,
 {
     pub fn new() -> SimplifyContext<T> {
         SimplifyContext {
@@ -107,7 +107,7 @@ where
 
 pub fn simplify_via_laws<T>(e: Expr<T>) -> Expr<T>
 where
-    T: Clone + Debug + Eq + Ord + Hash,
+    T: Clone + Debug + Eq + Hash,
 {
     let mut ctx = SimplifyContext::new();
     let mut e = e;
@@ -124,7 +124,7 @@ where
 // `BDD::from_expr` and `BDD::to_expr`, so we don't replicate those tests here.
 pub fn simplify_via_bdd<T>(e: Expr<T>) -> Expr<T>
 where
-    T: Clone + Debug + Eq + Ord + Hash,
+    T: Clone + Debug + Eq + Hash,
 {
     let mut bdd = BDD::new();
     let f = bdd.from_expr(&e);
@@ -139,7 +139,7 @@ mod test {
 
     fn run_test<T>(orig: Expr<T>, expected: Expr<T>)
     where
-        T: Clone + Debug + Eq + Ord + Hash,
+        T: Clone + Debug + Eq + Hash,
     {
         let output = simplify_via_laws(orig.clone());
         println!(
