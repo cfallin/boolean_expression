@@ -14,10 +14,10 @@ use simplify;
 /// An `Expr` is a simple Boolean logic expression. It may contain terminals
 /// (i.e., free variables), constants, and the following fundamental operations:
 /// AND, OR, NOT.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Expr<T>
 where
-    T: Clone + Debug + Eq + Ord + Hash,
+    T: Clone + Debug + Eq + Hash,
 {
     /// A terminal (free variable). This expression node represents a value that
     /// is not known until evaluation time.
@@ -37,7 +37,7 @@ where
 
 impl<T> Expr<T>
 where
-    T: Clone + Debug + Eq + Ord + Hash,
+    T: Clone + Debug + Eq + Hash,
 {
     /// Returns `true` if this `Expr` is a terminal.
     pub fn is_terminal(&self) -> bool {
@@ -175,7 +175,7 @@ where
     pub fn map<F, R>(&self, f: F) -> Expr<R>
     where
         F: Fn(&T) -> R,
-        R: Clone + Debug + Eq + Ord + Hash,
+        R: Clone + Debug + Eq + Hash,
     {
         self.map1(&f)
     }
@@ -183,7 +183,7 @@ where
     fn map1<F, R>(&self, f: &F) -> Expr<R>
     where
         F: Fn(&T) -> R,
-        R: Clone + Debug + Eq + Ord + Hash,
+        R: Clone + Debug + Eq + Hash,
     {
         match self {
             &Expr::Terminal(ref t) => Expr::Terminal(f(t)),

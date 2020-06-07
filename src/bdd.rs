@@ -333,7 +333,7 @@ impl LabelBDD {
 #[derive(Clone, Debug)]
 pub struct BDD<T>
 where
-    T: Clone + Debug + Eq + Ord + Hash,
+    T: Clone + Debug + Eq + Hash,
 {
     bdd: LabelBDD,
     labels: HashMap<T, BDDLabel>,
@@ -342,7 +342,7 @@ where
 
 impl<T> BDD<T>
 where
-    T: Clone + Debug + Eq + Ord + Hash,
+    T: Clone + Debug + Eq + Hash,
 {
     /// Produce a new, empty, BDD.
     pub fn new() -> BDD<T> {
@@ -583,7 +583,7 @@ pub trait BDDOutput<T, E> {
 /// required when its `persist()` or `persist_all()` method is called.
 pub struct PersistedBDD<T>
 where
-    T: Clone + Debug + Eq + Ord + Hash,
+    T: Clone + Debug + Eq + Hash,
 {
     bdd: BDD<T>,
     next_output_func: BDDFunc,
@@ -592,7 +592,7 @@ where
 
 impl<T> PersistedBDD<T>
 where
-    T: Clone + Debug + Eq + Ord + Hash,
+    T: Clone + Debug + Eq + Hash,
 {
     /// Create a new `PersistedBDD`.
     pub fn new() -> PersistedBDD<T> {
@@ -649,14 +649,14 @@ where
 /// `inject_label` and `inject_node` as appropriate to inject labels and nodes.
 pub struct BDDLoader<'a, T>
 where
-    T: Clone + Debug + Eq + Ord + Hash + 'a,
+    T: Clone + Debug + Eq + Hash + 'a,
 {
     bdd: &'a mut BDD<T>,
 }
 
 impl<'a, T> BDDLoader<'a, T>
 where
-    T: Clone + Debug + Eq + Ord + Hash + 'a,
+    T: Clone + Debug + Eq + Hash + 'a,
 {
     /// Create a new `BDDLoader` wrapping the given `bdd`. The `BDDLoader`
     /// holds a mutable reference to `bdd` until destroyed. `bdd` must be empty
