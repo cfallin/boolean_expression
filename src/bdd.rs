@@ -189,7 +189,7 @@ impl LabelBDD {
     pub fn or(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
         self.ite(a, BDD_ONE, b)
     }
-    
+
     pub fn xor(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
         let not_b = self.not(b);
         self.ite(a, not_b, b)
@@ -262,7 +262,8 @@ impl LabelBDD {
                 &CubeVar::False => Some(Expr::not(Expr::Terminal(i))),
                 &CubeVar::True => Some(Expr::Terminal(i)),
                 &CubeVar::DontCare => None,
-            }).fold1(|a, b| Expr::and(a, b))
+            })
+            .fold1(|a, b| Expr::and(a, b))
             .unwrap_or(Expr::Const(true))
     }
 
@@ -377,7 +378,7 @@ where
     pub fn constant(&mut self, val: bool) -> BDDFunc {
         self.bdd.constant(val)
     }
-    
+
     /// Produce a function within the BDD representing the logical if-then-else
     /// of the functions `i`, `t`, and `e`
     pub fn ite(&mut self, i: BDDFunc, t: BDDFunc, e: BDDFunc) -> BDDFunc {
@@ -401,7 +402,7 @@ where
     pub fn or(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
         self.bdd.or(a, b)
     }
-    
+
     /// Produce a function within the BDD representing the logical XOR of the
     /// functions `a` and `b`.
     pub fn xor(&mut self, a: BDDFunc, b: BDDFunc) -> BDDFunc {
@@ -788,7 +789,7 @@ mod test {
 
     #[test]
     fn bdd_exhaustive_exprs() {
-        let mut rng =  XorShiftRng::from_seed(rand::thread_rng().gen());
+        let mut rng = XorShiftRng::from_seed(rand::thread_rng().gen());
         for _ in 0..100 {
             let expr = random_expr(&mut rng, 6);
             test_bdd_expr(expr, 6);
@@ -814,10 +815,11 @@ mod test {
         let f_1_or_2 = b.or(f_1, f_2);
         let f_0_and_1_or_2 = b.and(f_0, f_1_or_2);
         assert!(
-            b.to_expr(f_0_and_1_or_2) == Expr::or(
-                Expr::and(Expr::Terminal(0), Expr::Terminal(2)),
-                Expr::and(Expr::Terminal(0), Expr::Terminal(1))
-            )
+            b.to_expr(f_0_and_1_or_2)
+                == Expr::or(
+                    Expr::and(Expr::Terminal(0), Expr::Terminal(2)),
+                    Expr::and(Expr::Terminal(0), Expr::Terminal(1))
+                )
         );
     }
 
@@ -1032,21 +1034,23 @@ mod test {
         let ab_or_c = p.bdd_mut().or(ab, term_c);
         p.persist(ab_or_c, &out).unwrap();
         assert!(
-            *out.labels.borrow() == vec![
-                (0, "A".to_owned()),
-                (1, "B".to_owned()),
-                (2, "C".to_owned()),
-            ]
+            *out.labels.borrow()
+                == vec![
+                    (0, "A".to_owned()),
+                    (1, "B".to_owned()),
+                    (2, "C".to_owned()),
+                ]
         );
         assert!(
-            *out.nodes.borrow() == vec![
-                (0, 0, BDD_ZERO, BDD_ONE),
-                (1, 1, BDD_ZERO, BDD_ONE),
-                (2, 2, BDD_ZERO, BDD_ONE),
-                (3, 0, BDD_ZERO, 1),
-                (4, 1, 2, BDD_ONE),
-                (5, 0, 2, 4),
-            ]
+            *out.nodes.borrow()
+                == vec![
+                    (0, 0, BDD_ZERO, BDD_ONE),
+                    (1, 1, BDD_ZERO, BDD_ONE),
+                    (2, 2, BDD_ZERO, BDD_ONE),
+                    (3, 0, BDD_ZERO, 1),
+                    (4, 1, 2, BDD_ONE),
+                    (5, 0, 2, 4),
+                ]
         );
     }
 

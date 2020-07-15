@@ -5,8 +5,8 @@
 //
 
 use std::fmt::Debug;
-use std::marker::PhantomData;
 use std::hash::Hash;
+use std::marker::PhantomData;
 
 use Expr;
 use BDD;
@@ -132,10 +132,10 @@ where
 }
 
 mod test {
-    use Expr;
     use super::*;
     use std::fmt::Debug;
     use std::hash::Hash;
+    use Expr;
 
     fn run_test<T>(orig: Expr<T>, expected: Expr<T>)
     where

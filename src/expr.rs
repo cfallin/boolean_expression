@@ -4,15 +4,11 @@
 // License.
 //
 
+use std::cmp::Ord;
 use std::collections::HashMap;
 use std::fmt::Debug;
-use std::cmp::Ord;
 use std::hash::Hash;
-use std::ops::BitAnd;
-use std::ops::BitAndAssign;
-use std::ops::BitOr;
-use std::ops::BitOrAssign;
-use std::ops::Not;
+use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, Not};
 
 use simplify;
 
@@ -202,7 +198,7 @@ where
 
 impl<T> Not for Expr<T>
 where
-    T: Clone + Debug + Eq + Hash
+    T: Clone + Debug + Eq + Hash,
 {
     type Output = Self;
 
@@ -213,7 +209,7 @@ where
 
 impl<T> BitAnd<Expr<T>> for Expr<T>
 where
-    T: Clone + Debug + Eq + Hash
+    T: Clone + Debug + Eq + Hash,
 {
     type Output = Self;
 
@@ -224,7 +220,7 @@ where
 
 impl<T> BitAndAssign<Expr<T>> for Expr<T>
 where
-    T: Clone + Debug + Eq + Hash
+    T: Clone + Debug + Eq + Hash,
 {
     fn bitand_assign(&mut self, rhs: Expr<T>) {
         *self = Self::and(self.clone(), rhs);
@@ -233,7 +229,7 @@ where
 
 impl<T> BitOr<Expr<T>> for Expr<T>
 where
-    T: Clone + Debug + Eq + Hash
+    T: Clone + Debug + Eq + Hash,
 {
     type Output = Self;
 
@@ -244,7 +240,7 @@ where
 
 impl<T> BitOrAssign<Expr<T>> for Expr<T>
 where
-    T: Clone + Debug + Eq + Hash
+    T: Clone + Debug + Eq + Hash,
 {
     fn bitor_assign(&mut self, rhs: Expr<T>) {
         *self = Self::or(self.clone(), rhs);

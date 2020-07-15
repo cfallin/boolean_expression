@@ -31,13 +31,13 @@ extern crate smallvec;
 #[macro_use]
 extern crate indoc;
 
-mod expr;
 mod bdd;
-mod idd;
 mod cubes;
+mod expr;
+mod idd;
 mod simplify;
 
-pub use expr::*;
 pub use bdd::*;
-pub(crate) use idd::*;
 pub use cubes::*;
+pub use expr::*;
+pub(crate) use idd::*;

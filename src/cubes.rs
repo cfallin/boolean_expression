@@ -4,11 +4,11 @@
 // License.
 //
 
-use std::iter;
-use std::slice;
+use smallvec::SmallVec;
 use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 use std::collections::VecDeque;
-use smallvec::SmallVec;
+use std::iter;
+use std::slice;
 
 /// A variable assignment in a cube.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -117,13 +117,7 @@ impl Cube {
             self.0
                 .iter()
                 .enumerate()
-                .map(|(i, var)| {
-                    if i == idx {
-                        val.clone()
-                    } else {
-                        var.clone()
-                    }
-                })
+                .map(|(i, var)| if i == idx { val.clone() } else { var.clone() })
                 .collect(),
         )
     }
@@ -237,7 +231,8 @@ impl CubeList {
             }
         }
 
-        let out = out.into_iter()
+        let out = out
+            .into_iter()
             .zip(canceled.iter())
             .filter(|&(_, flag)| !flag)
             .map(|(cube, _)| cube)
