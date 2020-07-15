@@ -8,6 +8,11 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 use std::cmp::Ord;
 use std::hash::Hash;
+use std::ops::BitAnd;
+use std::ops::BitAndAssign;
+use std::ops::BitOr;
+use std::ops::BitOrAssign;
+use std::ops::Not;
 
 use simplify;
 
@@ -192,5 +197,56 @@ where
             &Expr::And(ref a, ref b) => Expr::and(a.map1(f), b.map1(f)),
             &Expr::Or(ref a, ref b) => Expr::or(a.map1(f), b.map1(f)),
         }
+    }
+}
+
+impl<T> Not for Expr<T>
+where
+    T: Clone + Debug + Eq + Hash
+{
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        Self::not(self)
+    }
+}
+
+impl<T> BitAnd<Expr<T>> for Expr<T>
+where
+    T: Clone + Debug + Eq + Hash
+{
+    type Output = Self;
+
+    fn bitand(self, rhs: Expr<T>) -> Self::Output {
+        Self::and(self, rhs)
+    }
+}
+
+impl<T> BitAndAssign<Expr<T>> for Expr<T>
+where
+    T: Clone + Debug + Eq + Hash
+{
+    fn bitand_assign(&mut self, rhs: Expr<T>) {
+        *self = Self::and(self.clone(), rhs);
+    }
+}
+
+impl<T> BitOr<Expr<T>> for Expr<T>
+where
+    T: Clone + Debug + Eq + Hash
+{
+    type Output = Self;
+
+    fn bitor(self, rhs: Expr<T>) -> Self::Output {
+        Self::or(self, rhs)
+    }
+}
+
+impl<T> BitOrAssign<Expr<T>> for Expr<T>
+where
+    T: Clone + Debug + Eq + Hash
+{
+    fn bitor_assign(&mut self, rhs: Expr<T>) {
+        *self = Self::or(self.clone(), rhs);
     }
 }
