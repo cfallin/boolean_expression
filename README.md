@@ -1,7 +1,7 @@
 boolean\_expression: a small Rust crate for Boolean expressions and BDDs
 ========================================================================
 
-![Rust](https://github.com/domoritz/boolean_expression/workflows/Rust/badge.svg)
+![Rust](https://github.com/cfallin/boolean_expression/workflows/Rust/badge.svg)
 
 This crate provides for the manipulation and evaluation of Boolean expressions
 and Binary Decision Diagrams (BDDs), the construction of BDDs from Boolean
