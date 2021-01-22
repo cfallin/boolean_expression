@@ -8,7 +8,7 @@ use std::cmp::Ord;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
-use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, Not};
+use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Not};
 
 use simplify;
 
@@ -96,6 +96,12 @@ where
     /// expressions.
     pub fn or(e1: Expr<T>, e2: Expr<T>) -> Expr<T> {
         Expr::Or(Box::new(e1), Box::new(e2))
+    }
+
+    pub fn xor(e1: Expr<T>, e2: Expr<T>) -> Expr<T> {
+        let nand = !(e1.clone() & e2.clone());
+        let or = e1 | e2;
+        nand & or
     }
 
     /// Evaluates the expression with a particular set of terminal assignments.
@@ -244,5 +250,25 @@ where
 {
     fn bitor_assign(&mut self, rhs: Expr<T>) {
         *self = Self::or(self.clone(), rhs);
+    }
+}
+
+impl<T> BitXor<Expr<T>> for Expr<T>
+where
+    T: Clone + Debug + Eq + Hash,
+{
+    type Output = Self;
+
+    fn bitxor(self, rhs: Expr<T>) -> Self::Output {
+        Self::xor(self, rhs)
+    }
+}
+
+impl<T> BitXorAssign<Expr<T>> for Expr<T>
+where
+    T: Clone + Debug + Eq + Hash,
+{
+    fn bitxor_assign(&mut self, rhs: Expr<T>) {
+        *self = Self::xor(self.clone(), rhs);
     }
 }
