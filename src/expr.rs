@@ -15,6 +15,26 @@ use simplify;
 /// An `Expr` is a simple Boolean logic expression. It may contain terminals
 /// (i.e., free variables), constants, and the following fundamental operations:
 /// AND, OR, NOT.
+///
+/// ```
+/// use std::collections::HashMap;
+/// use boolean_expression::Expr;
+///
+/// #[derive(Clone, Hash, Eq, PartialEq, Debug)]
+/// enum RiverCrossing { Chicken, Fox, Grain }
+///
+/// let chicken = Expr::Terminal(RiverCrossing::Chicken);
+/// let fox_and_grain = Expr::Terminal(RiverCrossing::Fox) & Expr::Terminal(RiverCrossing::Grain);
+///
+/// let allowed = (!chicken.clone() & fox_and_grain.clone()) | (chicken & !fox_and_grain);
+/// let items = [
+///    (RiverCrossing::Grain, true),
+///    (RiverCrossing::Fox, true),
+/// ].iter().cloned().collect();
+///
+/// // nobody gets eaten!
+/// assert!(allowed.evaluate(&items));
+/// ```
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Expr<T>
 where
