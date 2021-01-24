@@ -136,6 +136,39 @@ where
         }
     }
 
+    /// Evaluates the expression using the provided function to map terminals
+    /// (variables) to boolean values. This is a generalization of
+    /// [`Expr::evaluate`], where the variable lookup in a hashmap is replaced
+    /// with an arbitrary computation.
+    ///
+    ///```
+    /// use boolean_expression::Expr;
+    ///
+    /// let expression = Expr::Terminal(10) | Expr::Terminal(3);
+    ///
+    /// // check if the expression satisfies a predicate
+    /// assert!(expression.evaluate_with(|&x| x > 5));
+    /// ```
+    pub fn evaluate_with<F>(&self, f: F) -> bool
+    where
+        F: Fn(&T) -> bool,
+    {
+        self.evaluate_with1(&f)
+    }
+
+    fn evaluate_with1<F>(&self, f: &F) -> bool
+    where
+        F: Fn(&T) -> bool,
+    {
+        match self {
+            Expr::Terminal(t) => f(t),
+            Expr::Const(val) => *val,
+            Expr::And(a, b) => a.evaluate_with1(f) && b.evaluate_with1(f),
+            Expr::Or(a, b) => a.evaluate_with1(f) || b.evaluate_with1(f),
+            Expr::Not(x) => !x.evaluate_with1(f),
+        }
+    }
+
     /// Simplify an expression in a relatively cheap way using well-known logic
     /// identities.
     ///
@@ -290,5 +323,14 @@ where
 {
     fn bitxor_assign(&mut self, rhs: Expr<T>) {
         *self = Self::xor(self.clone(), rhs);
+    }
+}
+
+impl<T> From<T> for Expr<T>
+where
+    T: Clone + Debug + Eq + Hash,
+{
+    fn from(t: T) -> Self {
+        Expr::Terminal(t)
     }
 }
