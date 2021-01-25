@@ -325,12 +325,3 @@ where
         *self = Self::xor(self.clone(), rhs);
     }
 }
-
-impl<T> From<T> for Expr<T>
-where
-    T: Clone + Debug + Eq + Hash,
-{
-    fn from(t: T) -> Self {
-        Expr::Terminal(t)
-    }
-}
