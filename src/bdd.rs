@@ -618,6 +618,10 @@ where
     /// describe BDD function `f`. More records than strictly necessary may be
     /// written out.
     pub fn persist<E>(&mut self, f: BDDFunc, out: &dyn BDDOutput<T, E>) -> Result<(), E> {
+        if f == BDD_ZERO || f == BDD_ONE {
+            // No need to persist the terminal constant nodes!
+            return Ok(());
+        }
         while self.next_output_label < self.bdd.rev_labels.len() {
             let id = self.next_output_label;
             let t = self.bdd.rev_labels[id].clone();
@@ -1068,5 +1072,12 @@ mod test {
         h.insert("A".to_owned(), true);
         h.insert("B".to_owned(), true);
         assert!(bdd.evaluate(1, &h) == true);
+    }
+
+    #[test]
+    fn persist_empty_bdd() {
+        let out = InMemoryBDDLog::new();
+        let mut p = PersistedBDD::new();
+        p.persist(BDD_ZERO, &out).unwrap();
     }
 }
